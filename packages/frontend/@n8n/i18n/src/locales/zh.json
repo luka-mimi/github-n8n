@@ -1454,6 +1454,7 @@
   "nodeSettings.outputCleared.message": "参数顺序已更改，已清除传出连接",
   "nodeSettings.nodeVersion": "{node} node 版本 {version}",
   "nodeView.addNode": "添加节点",
+  "nodeView.openFocusPanel": "打开焦点面板",
   "nodeView.openNodesPanel": "打开节点面板",
   "nodeView.addATriggerNodeFirst": "首先添加一个 <a data-action='showNodeCreator'>触发节点</a>",
   "nodeView.addOrEnableTriggerNode": "添加或启用触发器节点以执行工作流",
