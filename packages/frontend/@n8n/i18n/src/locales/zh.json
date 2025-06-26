@@ -1081,6 +1081,8 @@
   "mainSidebar.workflows.readOnlyEnv.tooltip.link": "更多信息",
   "mainSidebar.executions": "执行记录",
   "mainSidebar.workersView": "Worker",
+  "mainSidebar.whatsNew": "最新动态",
+  "mainSidebar.whatsNew.fullChangelog": "完整更新日志",
   "menuActions.duplicate": "复制",
   "menuActions.download": "下载",
   "menuActions.push": "推送到 Git",
@@ -3227,5 +3229,10 @@
   "insights.upgradeModal.perks.0": "查看长达一年的历史数据",
   "insights.upgradeModal.perks.1": "按小时查看过去24小时",
   "insights.upgradeModal.perks.2": "随时间推移更深入地了解工作流趋势",
-  "insights.upgradeModal.title": "升级到企业版"
+  "insights.upgradeModal.title": "升级到企业版",
+  "whatsNew.modal.title": "n8n {version} 新特性",
+  "whatsNew.versionsBehind": "落后 {count} 个版本 | 落后 {count} 个版本",
+  "whatsNew.update": "更新",
+  "whatsNew.updateAvailable": "您当前的版本是 {currentVersion}。更新到 {latestVersion} 可获取 {count} 个版本的新功能、改进和修复。查看更改",
+  "whatsNew.updateAvailable.changelogLink": "在完整的更新日志中"
 }
