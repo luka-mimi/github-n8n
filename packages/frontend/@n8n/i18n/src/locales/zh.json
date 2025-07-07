@@ -1115,7 +1115,7 @@
 	"ndv.execute.listenForTestEvent": "监听测试事件",
 	"ndv.execute.testChat": "测试聊天",
 	"ndv.execute.testStep": "运行该步骤",
-	"ndv.execute.stopListening": "停止收听",
+	"ndv.execute.stopListening": "停止监听",
 	"ndv.execute.nodeIsDisabled": "启用节点以执行",
 	"ndv.execute.requiredFieldsMissing": "请先填写必填字段",
 	"ndv.execute.stopWaitingForWebhook.error": "删除测试 Webhook 时出现问题",
