@@ -1,27 +1,11 @@
-# The n8n Enterprise License (the “Enterprise License”)
+# n8n 企业许可（"企业许可"）
 
-Copyright (c) 2022-present n8n GmbH.
+版权所有 (c) 2022 至今 n8n GmbH。
 
-With regard to the n8n Software:
+关于 n8n 软件：
 
-This software and associated documentation files (the "Software") may only be used in production, if
-you (and any entity that you represent) hold a valid n8n Enterprise license corresponding to your
-usage. Subject to the foregoing sentence, you are free to modify this Software and publish patches
-to the Software. You agree that n8n and/or its licensors (as applicable) retain all right, title and
-interest in and to all such modifications and/or patches, and all such modifications and/or patches
-may only be used, copied, modified, displayed, distributed, or otherwise exploited with a valid n8n
-Enterprise license for the corresponding usage. Notwithstanding the foregoing, you may copy and
-modify the Software for development and testing purposes, without requiring a subscription. You
-agree that n8n and/or its licensors (as applicable) retain all right, title and interest in and to
-all such modifications. You are not granted any other rights beyond what is expressly stated herein.
-Subject to the foregoing, it is forbidden to copy, merge, publish, distribute, sublicense, and/or
-sell the Software.
+如果您（以及您代表的任何实体）持有与您的使用相对应的有效 n8n 企业许可，则本软件及相关文档文件（"软件"）仅可用于生产。根据前述条款，您可以自由修改本软件并发布补丁。您同意 n8n 和/或其许可方（如适用）保留对此类修改和/或补丁的所有权利、所有权和利益，并且所有此类修改和/或补丁仅可在具有相应使用的有效 n8n 企业许可的情况下使用、复制、修改、展示、分发或以其他方式利用。尽管有上述规定，您可以复制和修改软件以进行开发和测试目的，而无需订阅。您同意 n8n 和/或其许可方（如适用）保留对此类修改的所有权利、所有权和利益。除本协议中明确规定的权利外，您未被授予任何其他权利。根据前述规定，禁止复制、合并、发布、分发、再许可和/或出售软件。
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
-NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES
-OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+本软件按"原样"提供，不附带任何形式的明示或暗示的保证，包括但不限于适销性、特定用途适用性和非侵权的保证。在任何情况下，作者或版权持有人均不对因本软件或本软件的使用或其他交易而引起的任何索赔、损害或其他责任承担责任，无论是在合同诉讼、侵权或其他方面。
 
-For all third party components incorporated into the n8n Software, those components are licensed
-under the original license provided by the owner of the applicable component.
+对于集成到 n8n 软件中的所有第三方组件，这些组件根据适用组件所有者提供的原始许可进行许可。

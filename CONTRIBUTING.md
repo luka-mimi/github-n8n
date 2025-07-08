@@ -1,315 +1,298 @@
-# Contributing to n8n
+# 贡献于 n8n
 
-Great that you are here and you want to contribute to n8n
+很高兴您在这里并希望为 n8n 做出贡献
 
-## Contents
+## 目录
 
-- [Contributing to n8n](#contributing-to-n8n)
-	- [Contents](#contents)
-	- [Code of conduct](#code-of-conduct)
-	- [Directory structure](#directory-structure)
-	- [Development setup](#development-setup)
-		- [Dev Container](#dev-container)
-		- [Requirements](#requirements)
+- [贡献于 n8n](#贡献于-n8n)
+	- [目录](#目录)
+	- [行为准则](#行为准则)
+	- [目录结构](#目录结构)
+	- [开发设置](#开发设置)
+		- [开发容器](#开发容器)
+		- [要求](#要求)
 			- [Node.js](#nodejs)
 			- [pnpm](#pnpm)
-				- [pnpm workspaces](#pnpm-workspaces)
+				- [pnpm 工作区](#pnpm-工作区)
 			- [corepack](#corepack)
-			- [Build tools](#build-tools)
-		- [Actual n8n setup](#actual-n8n-setup)
-		- [Start](#start)
-	- [Development cycle](#development-cycle)
-		- [Community PR Guidelines](#community-pr-guidelines)
-			- [**1. Change Request/Comment**](#1-change-requestcomment)
-			- [**2. General Requirements**](#2-general-requirements)
-			- [**3. PR Specific Requirements**](#3-pr-specific-requirements)
-			- [**4. Workflow Summary for Non-Compliant PRs**](#4-workflow-summary-for-non-compliant-prs)
-		- [Test suite](#test-suite)
-			- [Unit tests](#unit-tests)
-			- [Code Coverage](#code-coverage)
-			- [E2E tests](#e2e-tests)
-	- [Releasing](#releasing)
-	- [Create custom nodes](#create-custom-nodes)
-	- [Extend documentation](#extend-documentation)
-	- [Contribute workflow templates](#contribute-workflow-templates)
-	- [Contributor License Agreement](#contributor-license-agreement)
+			- [构建工具](#构建工具)
+		- [实际 n8n 设置](#实际-n8n-设置)
+		- [开始](#开始)
+	- [开发周期](#开发周期)
+		- [社区 PR 指南](#社区-pr-指南)
+			- [**1. 变更请求/评论**](#1-变更请求评论)
+			- [**2. 一般要求**](#2-一般要求)
+			- [**3. PR 特定要求**](#3-pr-特定要求)
+			- [**4. 不合规 PR 的工作流程总结**](#4-不合规-pr-的工作流程总结)
+		- [测试套件](#测试套件)
+			- [单元测试](#单元测试)
+			- [代码覆盖率](#代码覆盖率)
+			- [E2E 测试](#e2e-测试)
+	- [发布](#发布)
+	- [创建自定义节点](#创建自定义节点)
+	- [扩展文档](#扩展文档)
+	- [贡献工作流模板](#贡献工作流模板)
+	- [贡献者许可协议](#贡献者许可协议)
 
-## Code of conduct
+## 行为准则
 
-This project and everyone participating in it are governed by the Code of
-Conduct which can be found in the file [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
-By participating, you are expected to uphold this code. Please report
-unacceptable behavior to jan@n8n.io.
+本项目及其所有参与者均受行为准则的约束，该准则可在文件 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) 中找到。参与即表示您同意遵守此准则。请将不可接受的行为报告给 jan@n8n.io。
 
-## Directory structure
+## 目录结构
 
-n8n is split up in different modules which are all in a single mono repository.
+n8n 被分成不同的模块，所有模块都在一个单一的 mono 仓库中。
 
-The most important directories:
+最重要的目录：
 
-- [/docker/images](/docker/images) - Dockerfiles to create n8n containers
-- [/packages](/packages) - The different n8n modules
-- [/packages/cli](/packages/cli) - CLI code to run front- & backend
-- [/packages/core](/packages/core) - Core code which handles workflow
-  execution, active webhooks and
-  workflows. **Contact n8n before
-  starting on any changes here**
-- [/packages/frontend/@n8n/design-system](/packages/design-system) - Vue frontend components
-- [/packages/frontend/editor-ui](/packages/editor-ui) - Vue frontend workflow editor
-- [/packages/node-dev](/packages/node-dev) - CLI to create new n8n-nodes
-- [/packages/nodes-base](/packages/nodes-base) - Base n8n nodes
-- [/packages/workflow](/packages/workflow) - Workflow code with interfaces which
-  get used by front- & backend
+- [/docker/images](/docker/images) - 创建 n8n 容器的 Dockerfiles
+- [/packages](/packages) - 不同的 n8n 模块
+- [/packages/cli](/packages/cli) - 运行前端和后端的 CLI 代码
+- [/packages/core](/packages/core) - 处理工作流执行、活动 webhooks 和工作流的核心代码。**在此处进行任何更改之前请联系 n8n**
+- [/packages/frontend/@n8n/design-system](/packages/design-system) - Vue 前端组件
+- [/packages/frontend/editor-ui](/packages/editor-ui) - Vue 前端工作流编辑器
+- [/packages/node-dev](/packages/node-dev) - 创建新 n8n 节点的 CLI
+- [/packages/nodes-base](/packages/nodes-base) - 基础 n8n 节点
+- [/packages/workflow](/packages/workflow) - 前端和后端使用的接口的工作流代码
 
-## Development setup
+## 开发设置
 
-If you want to change or extend n8n you have to make sure that all the needed
-dependencies are installed and the packages get linked correctly. Here's a short guide on how that can be done:
+如果您想更改或扩展 n8n，您必须确保安装了所有需要的依赖项并正确链接了包。以下是如何完成此操作的简短指南：
 
-### Dev Container
+### 开发容器
 
-If you already have VS Code and Docker installed, you can click [here](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/n8n-io/n8n) to get started. Clicking these links will cause VS Code to automatically install the Dev Containers extension if needed, clone the source code into a container volume, and spin up a dev container for use.
+如果您已经安装了 VS Code 和 Docker，您可以点击[这里](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/n8n-io/n8n)开始。点击这些链接将导致 VS Code 自动安装开发容器扩展（如果需要），将源代码克隆到容器卷中，并启动一个开发容器以供使用。
 
-### Requirements
+### 要求
 
 #### Node.js
 
-[Node.js](https://nodejs.org/en/) version 22.16 or newer is required for development purposes.
+[Node.js](https://nodejs.org/en/) 版本 22.16 或更高版本是开发所需的。
 
 #### pnpm
 
-[pnpm](https://pnpm.io/) version 10.2 or newer is required for development purposes. We recommend installing it with [corepack](#corepack).
+[pnpm](https://pnpm.io/) 版本 10.2 或更高版本是开发所需的。我们建议使用 [corepack](#corepack) 安装。
 
-##### pnpm workspaces
+##### pnpm 工作区
 
-n8n is split up into different modules which are all in a single mono repository.
-To facilitate the module management, [pnpm workspaces](https://pnpm.io/workspaces) are used.
-This automatically sets up file-links between modules which depend on each other.
+n8n 被分成不同的模块，所有模块都在一个单一的 mono 仓库中。为了便于模块管理，使用了 [pnpm 工作区](https://pnpm.io/workspaces)。这会自动在相互依赖的模块之间设置文件链接。
 
 #### corepack
 
-We recommend enabling [Node.js corepack](https://nodejs.org/docs/latest-v16.x/api/corepack.html) with `corepack enable`.
+我们建议使用 `corepack enable` 启用 [Node.js corepack](https://nodejs.org/docs/latest-v16.x/api/corepack.html)。
 
-You can install the correct version of pnpm using `corepack prepare --activate`.
+您可以使用 `corepack prepare --activate` 安装正确版本的 pnpm。
 
-**IMPORTANT**: If you have installed Node.js via homebrew, you'll need to run `brew install corepack`, since homebrew explicitly removes `npm` and `corepack` from [the `node` formula](https://github.com/Homebrew/homebrew-core/blob/master/Formula/node.rb#L66).
+**重要**：如果您通过 homebrew 安装了 Node.js，您需要运行 `brew install corepack`，因为 homebrew 明确从 [node 公式](https://github.com/Homebrew/homebrew-core/blob/master/Formula/node.rb#L66) 中删除了 `npm` 和 `corepack`。
 
-**IMPORTANT**: If you are on windows, you'd need to run `corepack enable` and `corepack prepare --activate` in a terminal as an administrator.
+**重要**：如果您在 Windows 上，您需要以管理员身份在终端中运行 `corepack enable` 和 `corepack prepare --activate`。
 
-#### Build tools
+#### 构建工具
 
-The packages which n8n uses depend on a few build tools:
+n8n 使用的包依赖于一些构建工具：
 
-Debian/Ubuntu:
+Debian/Ubuntu：
 
 ```
 apt-get install -y build-essential python
 ```
 
-CentOS:
+CentOS：
 
 ```
 yum install gcc gcc-c++ make
 ```
 
-Windows:
+Windows：
 
 ```
 npm add -g windows-build-tools
 ```
 
-MacOS:
+MacOS：
 
-No additional packages required.
+不需要额外的包。
 
-### Actual n8n setup
+### 实际 n8n 设置
 
-> **IMPORTANT**: All the steps below have to get executed at least once to get the development setup up and running!
+> **重要**：以下所有步骤至少要执行一次才能使开发设置正常运行！
 
-Now that everything n8n requires to run is installed, the actual n8n code can be
-checked out and set up:
+现在 n8n 运行所需的一切都已安装，可以检出并设置实际的 n8n 代码：
 
-1. [Fork](https://guides.github.com/activities/forking/#fork) the n8n repository.
+1. [Fork](https://guides.github.com/activities/forking/#fork) n8n 仓库。
 
-2. Clone your forked repository:
+2. 克隆您 fork 的仓库：
 
    ```
    git clone https://github.com/<your_github_username>/n8n.git
    ```
 
-3. Go into repository folder:
+3. 进入仓库文件夹：
 
    ```
    cd n8n
    ```
 
-4. Add the original n8n repository as `upstream` to your forked repository:
+4. 将原始 n8n 仓库添加为 `upstream` 到您 fork 的仓库：
 
    ```
    git remote add upstream https://github.com/n8n-io/n8n.git
    ```
 
-5. Install all dependencies of all modules and link them together:
+5. 安装所有模块的所有依赖项并将它们链接在一起：
 
    ```
    pnpm install
    ```
 
-6. Build all the code:
+6. 构建所有代码：
    ```
    pnpm build
    ```
 
-### Start
+### 开始
 
-To start n8n execute:
+要启动 n8n，请执行：
 
 ```
 pnpm start
 ```
 
-To start n8n with tunnel:
+要使用隧道启动 n8n：
 
 ```
 ./packages/cli/bin/n8n start --tunnel
 ```
 
-## Development cycle
+## 开发周期
 
-While iterating on n8n modules code, you can run `pnpm dev`. It will then
-automatically build your code, restart the backend and refresh the frontend
-(editor-ui) on every change you make.
+在迭代 n8n 模块代码时，您可以运行 `pnpm dev`。它将自动构建您的代码，重启后端并在您进行的每次更改时刷新前端（editor-ui）。
 
-1. Start n8n in development mode:
+1. 在开发模式下启动 n8n：
    ```
    pnpm dev
    ```
 1. Hack, hack, hack
-1. Check if everything still runs in production mode:
+1. 检查一切是否仍在生产模式下运行：
    ```
    pnpm build
    pnpm start
    ```
-1. Create tests
-1. Run all [tests](#test-suite):
+1. 创建测试
+1. 运行所有[测试](#测试套件)：
    ```
    pnpm test
    ```
-1. Commit code and [create a pull request](https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork)
+1. 提交代码并[创建一个 pull 请求](https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork)
 
 ---
 
-### Community PR Guidelines
+### 社区 PR 指南
 
-#### **1. Change Request/Comment**
+#### **1. 变更请求/评论**
 
-Please address the requested changes or provide feedback within 14 days. If there is no response or updates to the pull request during this time, it will be automatically closed. The PR can be reopened once the requested changes are applied.
+请在 14 天内解决请求的更改或提供反馈。如果在此期间没有响应或更新 pull 请求，它将自动关闭。应用请求的更改后可以重新打开 PR。
 
-#### **2. General Requirements**
+#### **2. 一般要求**
 
-- **Follow the Style Guide:**
-  - Ensure your code adheres to n8n's coding standards and conventions (e.g., formatting, naming, indentation). Use linting tools where applicable.
-- **TypeScript Compliance:**
-  - Do not use `ts-ignore` .
-  - Ensure code adheres to TypeScript rules.
-- **Avoid Repetitive Code:**
-  - Reuse existing components, parameters, and logic wherever possible instead of redefining or duplicating them.
-  - For nodes: Use the same parameter across multiple operations rather than defining a new parameter for each operation (if applicable).
-- **Testing Requirements:**
-  - PRs **must include tests**:
-    - Unit tests
-    - Workflow tests for nodes (example [here](https://github.com/n8n-io/n8n/tree/master/packages/nodes-base/nodes/Switch/V3/test))
-    - UI tests (if applicable)
-- **Typos:**
-  - Use a spell-checking tool, such as [**Code Spell Checker**](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker), to avoid typos.
+- **遵循样式指南：**
+  - 确保您的代码符合 n8n 的编码标准和约定（例如，格式、命名、缩进）。在适用的情况下使用 linting 工具。
+- **TypeScript 合规性：**
+  - 不要使用 `ts-ignore`。
+  - 确保代码符合 TypeScript 规则。
+- **避免重复代码：**
+  - 尽可能重用现有组件、参数和逻辑，而不是重新定义或复制它们。
+  - 对于节点：在多个操作中使用相同的参数，而不是为每个操作定义一个新参数（如果适用）。
+- **测试要求：**
+  - PR **必须包含测试**：
+    - 单元测试
+    - 节点的工作流测试（示例[这里](https://github.com/n8n-io/n8n/tree/master/packages/nodes-base/nodes/Switch/V3/test)）
+    - UI 测试（如果适用）
+- **拼写错误：**
+  - 使用拼写检查工具，例如 [**Code Spell Checker**](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker)，以避免拼写错误。
 
-#### **3. PR Specific Requirements**
+#### **3. PR 特定要求**
 
-- **Small PRs Only:**
-  - Focus on a single feature or fix per PR.
-- **Naming Convention:**
-  - Follow [n8n's PR Title Conventions](https://github.com/n8n-io/n8n/blob/master/.github/pull_request_title_conventions.md#L36).
-- **New Nodes:**
-  - PRs that introduce new nodes will be **auto-closed** unless they are explicitly requested by the n8n team and aligned with an agreed project scope. However, you can still explore [building your own nodes](https://docs.n8n.io/integrations/creating-nodes/) , as n8n offers the flexibility to create your own custom nodes.
-- **Typo-Only PRs:**
-  - Typos are not sufficient justification for a PR and will be rejected.
+- **仅限小型 PR：**
+  - 每个 PR 专注于一个功能或修复。
+- **命名约定：**
+  - 遵循 [n8n 的 PR 标题约定](https://github.com/n8n-io/n8n/blob/master/.github/pull_request_title_conventions.md#L36)。
+- **新节点：**
+  - 引入新节点的 PR 将被**自动关闭**，除非它们是由 n8n 团队明确请求的并与商定的项目范围一致。然而，您仍然可以探索[构建您自己的节点](https://docs.n8n.io/integrations/creating-nodes/)，因为 n8n 提供了创建自定义节点的灵活性。
+- **仅限拼写错误的 PR：**
+  - 拼写错误不足以成为 PR 的理由，将被拒绝。
 
-#### **4. Workflow Summary for Non-Compliant PRs**
+#### **4. 不合规 PR 的工作流程总结**
 
-- **No Tests:** If tests are not provided, the PR will be auto-closed after **14 days**.
-- **Non-Small PRs:** Large or multifaceted PRs will be returned for segmentation.
-- **New Nodes/Typo PRs:** Automatically rejected if not aligned with project scope or guidelines.
+- **无测试：** 如果未提供测试，PR 将在 **14 天** 后自动关闭。
+- **非小型 PR：** 大型或多方面的 PR 将被退回以进行分段。
+- **新节点/拼写错误 PR：** 如果不符合项目范围或指南，将自动拒绝。
 
 ---
 
-### Test suite
+### 测试套件
 
-#### Unit tests
+#### 单元测试
 
-Unit tests can be started via:
+可以通过以下方式启动单元测试：
 
 ```
 pnpm test
 ```
 
-If that gets executed in one of the package folders it will only run the tests
-of this package. If it gets executed in the n8n-root folder it will run all
-tests of all packages.
+如果在某个包文件夹中执行，它将只运行该包的测试。如果在 n8n 根文件夹中执行，它将运行所有包的所有测试。
 
-If you made a change which requires an update on a `.test.ts.snap` file, pass `-u` to the command to run tests or press `u` in watch mode.
+如果您进行了需要更新 `.test.ts.snap` 文件的更改，请在运行测试时传递 `-u` 参数，或在监视模式下按 `u`。
 
-#### Code Coverage
-We track coverage for all our code on [Codecov](https://app.codecov.io/gh/n8n-io/n8n).
-But when you are working on tests locally, we recommend running your tests with env variable `COVERAGE_ENABLED` set to `true`. You can then view the code coverage in the `coverage` folder, or you can use [this VSCode extension](https://marketplace.visualstudio.com/items?itemName=ryanluker.vscode-coverage-gutters) to visualize the coverage directly in VSCode.
+#### 代码覆盖率
+我们在 [Codecov](https://app.codecov.io/gh/n8n-io/n8n) 上跟踪所有代码的覆盖率。但当您在本地进行测试时，我们建议在设置环境变量 `COVERAGE_ENABLED` 为 `true` 的情况下运行测试。然后，您可以在 `coverage` 文件夹中查看代码覆盖率，或者可以使用 [这个 VSCode 扩展](https://marketplace.visualstudio.com/items?itemName=ryanluker.vscode-coverage-gutters) 直接在 VSCode 中可视化覆盖率。
 
-#### E2E tests
+#### E2E 测试
 
-⚠️ You have to run `pnpm cypress:install` to install cypress before running the tests for the first time and to update cypress.
+⚠️ 您必须在第一次运行测试之前运行 `pnpm cypress:install` 以安装 cypress 并更新 cypress。
 
-E2E tests can be started via one of the following commands:
+E2E 测试可以通过以下命令之一启动：
 
-- `pnpm test:e2e:ui`: Start n8n and run e2e tests interactively using built UI code. Does not react to code changes (i.e. runs `pnpm start` and `cypress open`)
-- `pnpm test:e2e:dev`: Start n8n in development mode and run e2e tests interactively. Reacts to code changes (i.e. runs `pnpm dev` and `cypress open`)
-- `pnpm test:e2e:all`: Start n8n and run e2e tests headless (i.e. runs `pnpm start` and `cypress run --headless`)
+- `pnpm test:e2e:ui`：启动 n8n 并使用构建的 UI 代码交互式运行 e2e 测试。不响应代码更改（即运行 `pnpm start` 和 `cypress open`）
+- `pnpm test:e2e:dev`：在开发模式下启动 n8n 并交互式运行 e2e 测试。响应代码更改（即运行 `pnpm dev` 和 `cypress open`）
+- `pnpm test:e2e:all`：启动 n8n 并无头运行 e2e 测试（即运行 `pnpm start` 和 `cypress run --headless`）
 
-⚠️ Remember to stop your dev server before. Otherwise port binding will fail.
+⚠️ 请记得先停止您的开发服务器。否则端口绑定将失败。
 
-## Releasing
+## 发布
 
-To start a release, trigger [this workflow](https://github.com/n8n-io/n8n/actions/workflows/release-create-pr.yml) with the SemVer release type, and select a branch to cut this release from. This workflow will then:
+要开始发布，请使用 SemVer 发布类型触发[此工作流](https://github.com/n8n-io/n8n/actions/workflows/release-create-pr.yml)，并选择要从中剪切此发布的分支。此工作流将：
 
-1. Bump versions of packages that have changed or have dependencies that have changed
-2. Update the Changelog
-3. Create a new branch called `release/${VERSION}`, and
-4. Create a new pull-request to track any further changes that need to be included in this release
+1. 提升已更改或具有已更改依赖项的包的版本
+2. 更新变更日志
+3. 创建一个名为 `release/${VERSION}` 的新分支，并
+4. 创建一个新的 pull 请求以跟踪需要包含在此发布中的任何进一步更改
 
-Once ready to release, simply merge the pull-request.
-This triggers [another workflow](https://github.com/n8n-io/n8n/actions/workflows/release-publish.yml), that will:
+准备好发布后，只需合并 pull 请求即可。这将触发[另一个工作流](https://github.com/n8n-io/n8n/actions/workflows/release-publish.yml)，该工作流将：
 
-1. Build and publish the packages that have a new version in this release
-2. Create a new tag, and GitHub release from squashed release commit
-3. Merge the squashed release commit back into `master`
+1. 构建并发布此发布中具有新版本的包
+2. 从压缩的发布提交中创建一个新的标签和 GitHub 发布
+3. 将压缩的发布提交合并回 `master`
 
-## Create custom nodes
+## 创建自定义节点
 
-Learn about [building nodes](https://docs.n8n.io/integrations/creating-nodes/) to create custom nodes for n8n. You can create community nodes and make them available using [npm](https://www.npmjs.com/).
+了解有关[构建节点](https://docs.n8n.io/integrations/creating-nodes/)的信息，以创建 n8n 的自定义节点。您可以创建社区节点并使用 [npm](https://www.npmjs.com/) 使其可用。
 
-## Extend documentation
+## 扩展文档
 
-The repository for the n8n documentation on [docs.n8n.io](https://docs.n8n.io) can be found [here](https://github.com/n8n-io/n8n-docs).
+[n8n 文档](https://docs.n8n.io) 的仓库可以在[这里](https://github.com/n8n-io/n8n-docs)找到。
 
-## Contribute workflow templates
+## 贡献工作流模板
 
-You can submit your workflows to n8n's template library.
+您可以将您的工作流提交到 n8n 的模板库。
 
-n8n is working on a creator program, and developing a marketplace of templates. This is an ongoing project, and details are likely to change.
+n8n 正在开发一个创作者计划，并开发一个模板市场。这是一个正在进行的项目，细节可能会发生变化。
 
-Refer to [n8n Creator hub](https://www.notion.so/n8n/n8n-Creator-hub-7bd2cbe0fce0449198ecb23ff4a2f76f) for information on how to submit templates and become a creator.
+请参阅 [n8n 创作者中心](https://www.notion.so/n8n/n8n-Creator-hub-7bd2cbe0fce0449198ecb23ff4a2f76f) 以获取有关如何提交模板和成为创作者的信息。
 
-## Contributor License Agreement
+## 贡献者许可协议
 
-That we do not have any potential problems later it is sadly necessary to sign a [Contributor License Agreement](CONTRIBUTOR_LICENSE_AGREEMENT.md). That can be done literally with the push of a button.
+为了避免将来出现任何潜在问题，不幸的是，签署[贡献者许可协议](CONTRIBUTOR_LICENSE_AGREEMENT.md)是必要的。这实际上可以通过按下一个按钮来完成。
 
-We used the most simple one that exists. It is from [Indie Open Source](https://indieopensource.com/forms/cla) which uses plain English and is literally only a few lines long.
+我们使用了最简单的协议。它来自 [Indie Open Source](https://indieopensource.com/forms/cla)，使用简单的英语，实际上只有几行长。
 
-Once a pull request is opened, an automated bot will promptly leave a comment requesting the agreement to be signed. The pull request can only be merged once the signature is obtained.
+一旦打开 pull 请求，自动机器人将立即留下评论请求签署协议。只有在获得签名后，pull 请求才能合并。

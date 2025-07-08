@@ -1,5 +1,5 @@
-# n8n Contributor License Agreement
+# n8n 贡献者许可协议
 
-I give n8n permission to license my contributions on any terms they like. I am giving them this license in order to make it possible for them to accept my contributions into their project.
+我授权 n8n 以任何他们喜欢的条款许可我的贡献。我授予他们此许可是为了使他们能够接受我的贡献并将其纳入他们的项目。
 
-**_As far as the law allows, my contributions come as is, without any warranty or condition, and I will not be liable to anyone for any damages related to this software or this license, under any kind of legal claim._**
+**_在法律允许的范围内，我的贡献按原样提供，不附带任何保证或条件，我对与此软件或此许可相关的任何损害不承担责任，无论是何种法律索赔。_**

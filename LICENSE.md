@@ -1,88 +1,61 @@
-# License
+# 许可
 
-Portions of this software are licensed as follows:
+本软件的部分内容许可如下：
 
-- Content of branches other than the main branch (i.e. "master") are not licensed.
-- Source code files that contain ".ee." in their filename or ".ee" in their dirname are NOT licensed under
-  the Sustainable Use License.
-  To use source code files that contain ".ee." in their filename or ".ee" in their dirname you must hold a
-	valid n8n Enterprise License specifically allowing you access to such source code files and as defined
-	in "LICENSE_EE.md".
-- All third party components incorporated into the n8n Software are licensed under the original license
-  provided by the owner of the applicable component.
-- Content outside of the above mentioned files or restrictions is available under the "Sustainable Use
-  License" as defined below.
+- 除主分支（即"master"）以外的分支内容不被许可。
+- 文件名中包含".ee."或目录名中包含".ee"的源代码文件不在可持续使用许可下。
+  要使用文件名中包含".ee."或目录名中包含".ee"的源代码文件，您必须持有专门允许您访问此类源代码文件的有效 n8n 企业许可，并在"LICENSE_EE.md"中定义。
+- 集成到 n8n 软件中的所有第三方组件均根据适用组件所有者提供的原始许可进行许可。
+- 上述文件或限制之外的内容可根据下文定义的"可持续使用许可"使用。
 
-## Sustainable Use License
+## 可持续使用许可
 
-Version 1.0
+版本 1.0
 
-### Acceptance
+### 接受
 
-By using the software, you agree to all of the terms and conditions below.
+使用本软件即表示您同意以下所有条款和条件。
 
-### Copyright License
+### 版权许可
 
-The licensor grants you a non-exclusive, royalty-free, worldwide, non-sublicensable, non-transferable license
-to use, copy, distribute, make available, and prepare derivative works of the software, in each case subject
-to the limitations below.
+许可方授予您非独占、免版税、全球范围内、不可再许可、不可转让的许可，以使用、复制、分发、提供和准备软件的衍生作品，在每种情况下均受以下限制。
 
-### Limitations
+### 限制
 
-You may use or modify the software only for your own internal business purposes or for non-commercial or
-personal use. You may distribute the software or provide it to others only if you do so free of charge for
-non-commercial purposes. You may not alter, remove, or obscure any licensing, copyright, or other notices of
-the licensor in the software. Any use of the licensor’s trademarks is subject to applicable law.
+您只能将软件用于您自己的内部业务目的或非商业或个人用途。您只能在非商业目的下免费分发软件或将其提供给他人。您不得更改、删除或遮盖软件中许可方的任何许可、版权或其他声明。对许可方商标的任何使用均受适用法律的约束。
 
-### Patents
+### 专利
 
-The licensor grants you a license, under any patent claims the licensor can license, or becomes able to
-license, to make, have made, use, sell, offer for sale, import and have imported the software, in each case
-subject to the limitations and conditions in this license. This license does not cover any patent claims that
-you cause to be infringed by modifications or additions to the software. If you or your company make any
-written claim that the software infringes or contributes to infringement of any patent, your patent license
-for the software granted under these terms ends immediately. If your company makes such a claim, your patent
-license ends immediately for work on behalf of your company.
+许可方授予您许可，允许您根据许可方可以许可或能够许可的任何专利权利要求，制造、制造、使用、销售、提供销售、进口和进口软件，在每种情况下均受本许可中的限制和条件的约束。本许可不涵盖您因对软件的修改或添加而导致的任何专利权利要求。如果您或您的公司提出任何书面声明，声称软件侵犯或促成侵犯任何专利，您根据这些条款授予的软件专利许可将立即终止。如果您的公司提出此类声明，您代表公司的专利许可将立即终止。
 
-### Notices
+### 通知
 
-You must ensure that anyone who gets a copy of any part of the software from you also gets a copy of these
-terms. If you modify the software, you must include in any modified copies of the software a prominent notice
-stating that you have modified the software.
+您必须确保从您处获得软件任何部分副本的任何人也获得这些条款的副本。如果您修改软件，您必须在软件的任何修改副本中包含一个显著的声明，说明您已修改软件。
 
-### No Other Rights
+### 无其他权利
 
-These terms do not imply any licenses other than those expressly granted in these terms.
+这些条款不暗示除这些条款中明确授予的许可外的任何其他许可。
 
-### Termination
+### 终止
 
-If you use the software in violation of these terms, such use is not licensed, and your license will
-automatically terminate. If the licensor provides you with a notice of your violation, and you cease all
-violation of this license no later than 30 days after you receive that notice, your license will be reinstated
-retroactively. However, if you violate these terms after such reinstatement, any additional violation of these
-terms will cause your license to terminate automatically and permanently.
+如果您违反这些条款使用软件，则此类使用不被许可，您的许可将自动终止。如果许可方向您提供违反通知，并且您在收到通知后不迟于 30 天内停止所有违反行为，您的许可将追溯性地恢复。但是，如果您在此类恢复后违反这些条款，则任何额外的违反行为将导致您的许可自动和永久终止。
 
-### No Liability
+### 无责任
 
-As far as the law allows, the software comes as is, without any warranty or condition, and the licensor will
-not be liable to you for any damages arising out of these terms or the use or nature of the software, under
-any kind of legal claim.
+在法律允许的范围内，软件按原样提供，不附带任何保证或条件，许可方对因这些条款或软件的使用或性质而产生的任何损害不承担责任，无论是何种法律索赔。
 
-### Definitions
+### 定义
 
-The “licensor” is the entity offering these terms.
+"许可方"是提供这些条款的实体。
 
-The “software” is the software the licensor makes available under these terms, including any portion of it.
+"软件"是许可方根据这些条款提供的软件，包括其任何部分。
 
-“You” refers to the individual or entity agreeing to these terms.
+"您"是指同意这些条款的个人或实体。
 
-“Your company” is any legal entity, sole proprietorship, or other kind of organization that you work for, plus
-all organizations that have control over, are under the control of, or are under common control with that
-organization. Control means ownership of substantially all the assets of an entity, or the power to direct its
-management and policies by vote, contract, or otherwise. Control can be direct or indirect.
+"您的公司"是指您为之工作的任何法律实体、独资企业或其他类型的组织，以及对该组织拥有控制权、受其控制或与其共同控制的所有组织。控制是指对实体的实质性资产的所有权，或通过投票、合同或其他方式指导其管理和政策的权力。控制可以是直接的或间接的。
 
-“Your license” is the license granted to you for the software under these terms.
+"您的许可"是根据这些条款授予您的软件许可。
 
-“Use” means anything you do with the software requiring your license.
+"使用"是指您对软件进行的任何需要您许可的操作。
 
-“Trademark” means trademarks, service marks, and similar rights.
+"商标"是指商标、服务标志和类似权利。

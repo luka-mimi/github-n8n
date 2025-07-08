@@ -1,4 +1,3 @@
-## Reporting a Vulnerability
+## 报告漏洞
 
-Please report (suspected) security vulnerabilities to **[security@n8n.io](mailto:security@n8n.io)**. You will receive a response from
-us within 48 hours. If the issue is confirmed, we will release a patch as soon as possible depending on complexity but historically within a few days.
+请将（疑似）安全漏洞报告至 **[security@n8n.io](mailto:security@n8n.io)**。我们将在48小时内回复您。如果问题得到确认，我们将根据复杂性尽快发布补丁，但从历史上看，通常在几天内完成。
