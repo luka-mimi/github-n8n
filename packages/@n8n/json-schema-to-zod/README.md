@@ -1,14 +1,14 @@
 # Json-Schema-to-Zod
 
-A package to convert JSON schema (draft 4+) objects into Zod schemas in the form of Zod objects at runtime.
+一个用于在运行时将 JSON schema（草案 4+）对象转换为 Zod 对象形式的 Zod schema 的包。
 
-## Installation
+## 安装
 
 ```sh
 npm install @n8n/json-schema-to-zod
 ```
 
-### Simple example
+### 简单示例
 
 ```typescript
 import { jsonSchemaToZod } from "json-schema-to-zod";
@@ -25,10 +25,10 @@ const jsonSchema = {
 const zodSchema = jsonSchemaToZod(myObject);
 ```
 
-### Overriding a parser
+### 覆盖解析器
 
-You can pass a function to the `overrideParser` option, which represents a function that receives the current schema node and the reference object, and should return a zod object when it wants to replace a default output. If the default output should be used for the node just return undefined.
+您可以将一个函数传递给 `overrideParser` 选项，该函数表示一个接收当前 schema 节点和引用对象的函数，并在希望替换默认输出时返回一个 zod 对象。如果节点应使用默认输出，只需返回 undefined。
 
-## Acknowledgements
+## 鸣谢
 
-This is a fork of [`json-schema-to-zod`](https://github.com/StefanTerdell/json-schema-to-zod).
+这是 [`json-schema-to-zod`](https://github.com/StefanTerdell/json-schema-to-zod) 的一个分支。

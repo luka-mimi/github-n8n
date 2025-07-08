@@ -1,116 +1,116 @@
-# PR Title Convention
+# PR 标题约定
 
-We have very precise rules over how Pull Requests (to the `master` branch) must be formatted. This format basically follows the [Angular Commit Message Convention](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#commit). It leads to easier to read commit history and allows for automated generation of release notes:
+我们对 Pull Requests（到 `master` 分支）的格式有非常精确的规则。此格式基本上遵循 [Angular 提交信息约定](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#commit)。它使提交历史更易于阅读，并允许自动生成发布说明：
 
-A PR title consists of these elements:
+PR 标题由以下元素组成：
 
 ```text
 <type>(<scope>): <summary>
   │       │          │
-  │       │          └─⫸ Summary: In imperative present tense.
-  |       |                        Capitalized
-  |       |                        No period at the end.
+  │       │          └─⫸ 概要：使用祈使句现在时。
+  |       |                        首字母大写
+  |       |                        末尾无句号。
   │       │
-  │       └─⫸ Scope: API | benchmark | core | editor | * Node
+  │       └─⫸ 范围：API | benchmark | core | editor | * Node
   │
-  └─⫸ Type: build | ci | chore | docs | feat | fix | perf | refactor | test
+  └─⫸ 类型：build | ci | chore | docs | feat | fix | perf | refactor | test
 ```
 
-- PR title
-  - type
-  - scope (_optional_)
-  - summary
-- PR description
-  - body (optional)
-  - blank line
-  - footer (optional)
+- PR 标题
+  - 类型
+  - 范围（_可选_）
+  - 概要
+- PR 描述
+  - 正文（可选）
+  - 空行
+  - 页脚（可选）
 
-The structure looks like this:
+结构如下：
 
-## Type
+## 类型
 
-Must be one of the following:
+必须是以下之一：
 
-| type | description | appears in changelog |
+| 类型 | 描述 | 是否出现在变更日志 |
 | --- | --- | --- |
-| `feat` | A new feature | ✅ |
-| `fix` | A bug fix | ✅ |
-| `perf` | A code change that improves performance | ✅ |
-| `test` | Adding missing tests or correcting existing tests | ❌ |
-| `docs` | Documentation only changes | ❌ |
-| `refactor` | A behavior-neutral code change that neither fixes a bug nor adds a feature | ❌ |
-| `build` | Changes that affect the build system or external dependencies (TypeScript, Jest, pnpm, etc.) | ❌ |
-| `ci` | Changes to CI configuration files and scripts (e.g. Github actions) | ❌ |
-| `chore` | Routine tasks, maintenance, and minor updates not covered by other types | ❌ |
+| `feat` | 新功能 | ✅ |
+| `fix` | 错误修复 | ✅ |
+| `perf` | 提高性能的代码更改 | ✅ |
+| `test` | 添加缺失的测试或更正现有测试 | ❌ |
+| `docs` | 仅文档更改 | ❌ |
+| `refactor` | 不改变行为的代码更改，既不修复错误也不添加功能 | ❌ |
+| `build` | 影响构建系统或外部依赖项的更改（TypeScript、Jest、pnpm 等） | ❌ |
+| `ci` | CI 配置文件和脚本的更改（例如 Github actions） | ❌ |
+| `chore` | 常规任务、维护和其他类型未涵盖的小更新 | ❌ |
 
-> BREAKING CHANGES (see Footer section below), will **always** appear in the changelog unless suffixed with `no-changelog`.
+> 重大更改（见下文页脚部分），将**始终**出现在变更日志中，除非后缀为 `no-changelog`。
 
-## Scope (optional)
+## 范围（可选）
 
-The scope should specify the place of the commit change as long as the commit clearly addresses one of the following supported scopes. (Otherwise, omit the scope!)
+只要提交明确解决以下支持的范围之一，范围应指定提交更改的位置。（否则，省略范围！）
 
-- `API` - changes to the _public_ API
-- `benchmark` - changes to the benchmark cli
-- `core` - changes to the core / private API / backend of n8n
-- `editor` - changes to the Editor UI
-- `* Node` - changes to a specific node or trigger node (”`*`” to be replaced with the node name, not its display name), e.g.
-  - mattermost → Mattermost Node
-  - microsoftToDo → Microsoft To Do Node
-  - n8n → n8n Node
+- `API` - 对 _公共_ API 的更改
+- `benchmark` - 对基准 cli 的更改
+- `core` - 对 n8n 核心/私有 API/后端的更改
+- `editor` - 对编辑器 UI 的更改
+- `* Node` - 对特定节点或触发节点的更改（"*"应替换为节点名称，而不是其显示名称），例如
+  - mattermost → Mattermost 节点
+  - microsoftToDo → Microsoft To Do 节点
+  - n8n → n8n 节点
 
-## Summary
+## 概要
 
-The summary contains succinct description of the change:
+概要包含对更改的简洁描述：
 
-- use the imperative, present tense: "change" not "changed" nor "changes"
-- capitalize the first letter
-- _no_ dot (.) at the end
-- do _not_ include Linear ticket IDs etc. (e.g. N8N-1234)
-- suffix with “(no-changelog)” for commits / PRs that should not get mentioned in the changelog.
+- 使用祈使句现在时："更改"而不是"已更改"或"更改中"
+- 首字母大写
+- 末尾无点（.）
+- 不包括 Linear 工单 ID 等（例如 N8N-1234）
+- 对于不应在变更日志中提及的提交/PR，后缀为"(no-changelog)"。
 
-## Body (optional)
+## 正文（可选）
 
-Just as in the **summary**, use the imperative, present tense: "change" not "changed" nor "changes". The body should include the motivation for the change and contrast this with previous behavior.
+就像在 **概要** 中一样，使用祈使句现在时："更改"而不是"已更改"或"更改中"。正文应包括更改的动机，并与之前的行为进行对比。
 
-## Footer (optional)
+## 页脚（可选）
 
-The footer can contain information about breaking changes and deprecations and is also the place to [reference GitHub issues](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword), Linear tickets, and other PRs that this commit closes or is related to. For example:
-
-```text
-BREAKING CHANGE: <breaking change summary>
-<BLANK LINE>
-<breaking change description + migration instructions>
-<BLANK LINE>
-<BLANK LINE>
-Fixes #<issue number>
-```
-
-or
+页脚可以包含有关重大更改和弃用的信息，也是 [引用 GitHub 问题](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword)、Linear 工单和此提交关闭或相关的其他 PR 的位置。例如：
 
 ```text
-DEPRECATED: <what is deprecated>
-<BLANK LINE>
-<deprecation description + recommended update path>
-<BLANK LINE>
-<BLANK LINE>
-Closes #<pr number>
+BREAKING CHANGE: <重大更改摘要>
+<空行>
+<重大更改描述 + 迁移说明>
+<空行>
+<空行>
+修复 #<问题编号>
 ```
 
-A Breaking Change section should start with the phrase "`BREAKING CHANGE:` " followed by a summary of the breaking change, a blank line, and a detailed description of the breaking change that also includes migration instructions.
+或
 
-> 💡 A breaking change can additionally also be marked by adding a “`!`” to the header, right before the “`:`”, e.g. `feat(editor)!: Remove support for dark mode`
+```text
+DEPRECATED: <弃用内容>
+<空行>
+<弃用描述 + 推荐更新路径>
+<空行>
+<空行>
+关闭 #<pr 编号>
+```
+
+重大更改部分应以短语"`BREAKING CHANGE:`"开头，后跟重大更改的摘要、空行和重大更改的详细描述，其中还包括迁移说明。
+
+> 💡 重大更改还可以通过在标题中添加"`!"`来标记，就在":"之前，例如 `feat(editor)!: 移除对暗模式的支持`
 >
-> This makes locating breaking changes easier when just skimming through commit messages.
+> 这使得在浏览提交信息时更容易定位重大更改。
 
-> 💡 The breaking changes must also be added to the [packages/cli/BREAKING-CHANGES.md](https://github.com/n8n-io/n8n/blob/master/packages/cli/BREAKING-CHANGES.md) file located in the n8n repository.
+> 💡 重大更改还必须添加到 n8n 仓库中的 [packages/cli/BREAKING-CHANGES.md](https://github.com/n8n-io/n8n/blob/master/packages/cli/BREAKING-CHANGES.md) 文件中。
 
-Similarly, a Deprecation section should start with "`DEPRECATED:` " followed by a short description of what is deprecated, a blank line, and a detailed description of the deprecation that also mentions the recommended update path.
+同样，弃用部分应以"`DEPRECATED:`"开头，后跟弃用内容的简短描述、空行和弃用的详细描述，其中还提到推荐的更新路径。
 
-### Revert commits
+### 撤销提交
 
-If the commit reverts a previous commit, it should begin with `revert:` , followed by the header of the reverted commit.
+如果提交撤销了先前的提交，则应以 `revert:` 开头，后跟被撤销提交的标题。
 
-The content of the commit message body should contain:
+提交信息正文的内容应包含：
 
-- information about the SHA of the commit being reverted in the following format: `This reverts commit <SHA>`,
-- a clear description of the reason for reverting the commit message.
+- 关于被撤销提交的 SHA 的信息，格式如下：`This reverts commit <SHA>`，
+- 清楚描述撤销提交信息的原因。

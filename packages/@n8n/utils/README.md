@@ -1,25 +1,25 @@
 # @n8n/utils
 
-A collection of utility functions that provide common functionality for both Front-End and Back-End packages.
+一个提供前端和后端包通用功能的实用函数集合。
 
-## Table of Contents
+## 目录
 
-- [Features](#features)
-- [Contributing](#contributing)
-- [License](#license)
+- [功能](#功能)
+- [贡献](#贡献)
+- [许可证](#许可证)
 
-## Features
+## 功能
 
-- **Reusable Logic**: Build complex, stateful functionality using modular composable functions that you can easily reuse.
-- **Consistent Patterns**: Enjoy a unified approach across n8n packages, making integration and maintenance a breeze.
-- **Type-Safe & Reliable**: Benefit from TypeScript support, which improves the developer experience and code robustness.
-- **Universal Functionality**: Designed to work seamlessly on both the front-end and back-end.
-- **Easily Testable**: A modular design that simplifies testing, maintenance, and rapid development.
+- **可重用逻辑**：使用模块化可组合函数构建复杂的、有状态的功能，轻松实现重用。
+- **一致的模式**：在 n8n 包中享受统一的方法，使集成和维护变得轻而易举。
+- **类型安全且可靠**：受益于 TypeScript 支持，提高开发者体验和代码的健壮性。
+- **通用功能**：设计为在前端和后端无缝工作。
+- **易于测试**：模块化设计简化了测试、维护和快速开发。
 
-## Contributing
+## 贡献
 
-For more details, please read our [CONTRIBUTING.md](CONTRIBUTING.md).
+欲了解更多详情，请阅读我们的 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
-## License
+## 许可证
 
-For more details, please read our [LICENSE.md](LICENSE.md).
+欲了解更多详情，请阅读我们的 [LICENSE.md](LICENSE.md)。

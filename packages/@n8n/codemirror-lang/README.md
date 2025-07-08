@@ -1,5 +1,5 @@
 # @n8n/codemirror-lang
 
-Language support package for CodeMirror 6 in n8n
+n8n 中 CodeMirror 6 的语言支持包
 
-[n8n Expression Language support](./src/expressions/README.md)
+[n8n 表达式语言支持](./src/expressions/README.md)
