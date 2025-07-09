@@ -1497,6 +1497,7 @@
   "nodeView.deletesTheCurrentExecutionData": "删除当前执行数据",
   "nodeView.focusPanel.title": "焦点",
   "nodeView.focusPanel.noParameters": "未聚焦任何参数。 通过在节点详细信息视图中单击操作下拉菜单来聚焦参数。",
+  "nodeView.focusPanel.missingParameter": "此参数在节点上不再可见。某个相关参数可能已更改，导致此参数被移除。",
   "nodeView.itLooksLikeYouHaveBeenEditingSomething": "看起来你进行了一些编辑。如果在保存前离开，你的更改将丢失",
   "nodeView.loadingTemplate": "正在加载模板",
   "nodeView.moreInfo": "更多信息",
