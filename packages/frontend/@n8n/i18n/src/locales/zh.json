@@ -1523,6 +1523,7 @@
   "nodeView.showError.mounted2.message": "初始化工作流时出现问题",
   "nodeView.showError.mounted2.title": "初始化问题",
   "nodeView.showError.openExecution.title": "加载执行时出现问题",
+  "nodeView.showError.openExecution.node": "执行中打开节点时出现问题",
   "nodeView.showError.openWorkflow.title": "无法打开工作流",
   "nodeView.showError.stopExecution.title": "停止执行时出现问题",
   "nodeView.showError.stopWaitingForWebhook.title": "删除测试 webhook 时出现问题",
