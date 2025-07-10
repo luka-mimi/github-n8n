@@ -195,6 +195,7 @@
   "aiAssistant.prompts.currentView.credentialsList": "用户当前正在查看凭据列表",
   "aiAssistant.prompts.currentView.executionsView": "用户当前正在查看当前已打开工作流的执行列表",
   "aiAssistant.prompts.currentView.workflowEditor": "用户当前正在n8n编辑器中查看当前工作流，未选择任何特定节点",
+  "aiAssistant.tooltip": "询问助手",
   "banners.confirmEmail.message.1": "为了保护你的帐户并防止将来出现访问问题，请确认你的",
   "banners.confirmEmail.message.2": "电子邮件地址",
   "banners.confirmEmail.button": "确认电子邮件",
