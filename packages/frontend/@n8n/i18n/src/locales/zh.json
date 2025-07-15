@@ -3250,6 +3250,7 @@
   "insights.banner.title.timeSavedDailyAverage": "每日节省时间（平均）",
   "insights.banner.title.averageRunTime": "运行耗时（平均）",
   "insights.dashboard.table.projectName": "项目名称",
+  "insights.dashboard.table.title": "按工作流明细",
   "insights.dashboard.table.estimate": "预估",
   "insights.dashboard.title": "数据统计面板",
   "insights.dashboard.paywall.cta": "升级",
