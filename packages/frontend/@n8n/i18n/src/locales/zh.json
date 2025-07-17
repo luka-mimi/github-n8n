@@ -3278,6 +3278,7 @@
   "communityNodeInfo.downloads": "{downloads} 下载",
   "communityNodeInfo.publishedBy": "由 {publisherName} 发布",
   "communityNodeInfo.contact.admin": "请联系管理员安装此社区节点：",
+  "communityNodeUpdateInfo.available": "有新的节点包版本可用",
   "insights.upgradeModal.button.dismiss": "忽略",
   "insights.upgradeModal.button.upgrade": "升级",
   "insights.upgradeModal.content": "查看此时间段需要企业套餐。升级到企业版以解锁高级功能",
