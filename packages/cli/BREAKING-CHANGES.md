@@ -1,209 +1,227 @@
-# n8n 重大变更
+# n8n Breaking Changes
 
-此列表显示了所有包含重大更改的版本以及如何升级。
+This list shows all the versions which include breaking changes and how to upgrade.
+
+## 1.103.0
+
+### What changed?
+
+We will no longer be allowing users to use `responseData` within the Webhook node since this is now sandboxed in an iframe, which may break workflows relying on browser APIs like `localStorage` and `fetch` from within custom code.
+
+### When is action necessary?
+
+If your workflow is using the Webhook node and uses JavaScript in `responseData` to make `fetch` calls or access `localStorage`, you may need to refactor it due to the new iframe sandboxing.
 
 ## 1.102.0
 
-### 变更内容？
+### What changed?
 
-`N8N_RUNNERS_ALLOW_PROTOTYPE_MUTATION` 标志已被 `N8N_RUNNERS_INSECURE_MODE` 替代。新标志禁用所有任务运行器的安全措施，旨在为那些重视与 `puppeteer` 等库兼容性而非安全性的用户提供一个应急措施。
+The `N8N_RUNNERS_ALLOW_PROTOTYPE_MUTATION` flag has been replaced with `N8N_RUNNERS_INSECURE_MODE`. The new flag
+disables all task runner security measures and is intended as an escape hatch for users who value compatibility
+with libraries like `puppeteer` at the cost of security.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您正在使用 `N8N_RUNNERS_ALLOW_PROTOTYPE_MUTATION` 标志，或者发现任务运行器当前不支持您依赖的外部模块，请考虑在自担风险的情况下设置 `N8N_RUNNERS_INSECURE_MODE=true`。
+If you are using the `N8N_RUNNERS_ALLOW_PROTOTYPE_MUTATION` flag, or if you find that the task runner does not
+currently support an external module that you rely on, then consider setting `N8N_RUNNERS_INSECURE_MODE=true`,
+at your own risk.
 
 ## 1.98.0
 
-### 变更内容？
+### What changed?
 
-作为路由指标一部分的 `last_activity` 指标已更改为输出自上一个时间戳标签方法以来的 Unix 时间（以秒为单位）。标签方法可能导致 Prometheus 中的高基数，从而导致性能下降。
+The `last_activity` metric included as a part of route metrics has been changed to output a Unix time in seconds from
+the previous timestamp label approach. The labeling approach could result in high cardinality within Prometheus and
+thus result in poorer performance.
 
-在使用表单节点时，对 `iframe`、`video` 和 `source` 标签的参数进行了更严格的限制。
+Stricter parameters for `iframe`, `video`, and `source` tags when using the Form node.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您一直在从 n8n 实例（版本 1.81.0 及更新版本）中摄取路由指标，您应该分析 `last_activity` 指标如何影响您的 Prometheus 实例，并可能清理旧数据。未来的指标也将以不同的格式提供，这需要考虑在内。
+If you've been ingesting route metrics from your n8n instance (version 1.81.0 and newer), you should analyze
+how the `last_activity` metric has affected your Prometheus instance and potentially clean up the old data. Future
+metrics will also be served in a different format, which needs to be taken into account.
 
-如果您使用 `iframe`、`video` 或 `source` 标签，并且使用了此处未列出的属性，或者使用了既不是 `http` 也不是 `https` 的方案，您需要更新您的节点或工作流。
+If you are using `iframe`, `video`, or `source` tags with attributes beyond those listed [here](https://github.com/n8n-io/n8n/blob/master/packages/nodes-base/nodes/Form/utils/utils.ts#L61-L71) or are using schemes which are neither `http` or `https`, you will need to update your node or workflow.
 
-### 变更内容？
+### What changed?
 
-n8n 现在要求的最低 Node.js 版本为 v20。
+The minimum Node.js version required for n8n is now v20.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您通过 npm 或 PM2 使用 n8n，或者您正在为 n8n 做贡献。
+If you're using n8n via npm or PM2 or if you're contributing to n8n.
 
-### 如何升级：
+### How to upgrade:
 
-将 Node.js 版本更新到 v20 或更高版本。
+Update the Node.js version to v20 or above.
 
 ## 1.83.0
 
-### 变更内容？
+### What changed?
 
-表单节点不再允许自定义 HTML 的 `input` 字段类型，以防止恶意 JavaScript 被添加。
+The Form nodes no longer allows `input` field types for custom HTML to prevent malicious javascript from being added.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您之前在表单节点的自定义 HTML 中使用了 `input`。
+If you were previously using `input` in the custom HTML for a Form node.
 
 ## 1.82.1
 
-### 变更内容？
+### What changed?
 
-表单节点不再允许自定义 HTML 的 `input` 字段类型，以防止恶意 JavaScript 被添加。
+The Form nodes no longer allows `input` field types for custom HTML to prevent malicious javascript from being added.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您之前在表单节点的自定义 HTML 中使用了 `input`。
+If you were previously using `input` in the custom HTML for a Form node.
 
 ## 1.81.3
 
-### 变更内容？
+### What changed?
 
-表单节点不再允许自定义 HTML 的 `input` 字段类型，以防止恶意 JavaScript 被添加。
+The Form nodes no longer allows `input` field types for custom HTML to prevent malicious javascript from being added.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您之前在表单节点的自定义 HTML 中使用了 `input`。
+If you were previously using `input` in the custom HTML for a Form node.
 
 ## 1.65.0
 
-### 变更内容？
+### What changed?
 
-通过环境变量 `QUEUE_RECOVERY_INTERVAL` 进行的队列轮询已被移除。
+Queue polling via the env var `QUEUE_RECOVERY_INTERVAL` has been removed.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您设置了环境变量 `QUEUE_RECOVERY_INTERVAL`，请将其移除，因为它不再有任何效果。
+If you have set the env var `QUEUE_RECOVERY_INTERVAL`, so you can remove it as it no longer has any effect.
 
 ## 1.63.0
 
-### 变更内容？
+### What changed?
 
-1. 工作服务器默认绑定到 IPv6，现在默认绑定到 IPv4。
-2. 工作服务器的 `/healthz` 以前基于数据库和 Redis 检查报告健康状态。现在无论数据库和 Redis 状态如何，都会报告健康状态，数据库和 Redis 检查是 `/healthz/readiness` 的一部分。
+1. The worker server used to bind to IPv6 by default. It now binds to IPv4 by default.
+2. The worker server's `/healthz` used to report healthy status based on database and Redis checks. It now reports healthy status regardless of database and Redis status, and the database and Redis checks are part of `/healthz/readiness`.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-1. 如果在使用默认端口启动工作服务器时遇到端口冲突错误，请使用 `QUEUE_HEALTH_CHECK_PORT` 为工作服务器设置不同的端口。
-2. 如果您依赖于数据库和 Redis 检查来获取工作健康状态，请改为检查 `/healthz/readiness` 而不是 `/healthz`。
+1. If you experience a port conflict error when starting a worker server using its default port, set a different port for the worker server with `QUEUE_HEALTH_CHECK_PORT`.
+2. If you are relying on database and Redis checks for worker health status, switch to checking `/healthz/readiness` instead of `/healthz`.
 
 ## 1.57.0
 
-### 变更内容？
+### What changed?
 
-`verbose` 日志级别已合并到 `debug` 日志级别中。
+The `verbose` log level was merged into the `debug` log level.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您设置了环境变量 `N8N_LOG_LEVEL=verbose`，请将日志级别更新为 `N8N_LOG_LEVEL=debug`。
+If you are setting the env var `N8N_LOG_LEVEL=verbose`, please update your log level to `N8N_LOG_LEVEL=debug`.
 
 ## 1.55.0
 
-### 变更内容？
+### What changed?
 
-环境变量 `N8N_BLOCK_FILE_ACCESS_TO_N8N_FILES` 现在也阻止访问 n8n 的静态缓存目录 `~/.cache/n8n/public`。
+The `N8N_BLOCK_FILE_ACCESS_TO_N8N_FILES` environment variable now also blocks access to n8n's static cache directory at `~/.cache/n8n/public`.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您通过节点在 n8n 的静态缓存目录中读写文件，例如 `从磁盘读取/写入文件`，请更新您的节点以使用不同的路径。
+If you are writing to or reading from a file at n8n's static cache directory via a node, e.g. `Read/Write Files from Disk`, please update your node to use a different path.
 
 ## 1.52.0
 
-### 变更内容？
+### What changed?
 
-通过 `N8N_METRICS_INCLUDE_DEFAULT_METRICS` 和 `N8N_METRICS_INCLUDE_API_ENDPOINTS` 启用的 Prometheus 指标已修复为包含默认的 `n8n_` 前缀。
+Prometheus metrics enabled via `N8N_METRICS_INCLUDE_DEFAULT_METRICS` and `N8N_METRICS_INCLUDE_API_ENDPOINTS` were fixed to include the default `n8n_` prefix.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您使用这些类别的 Prometheus 指标并使用非空前缀，请更新这些指标以匹配其新的前缀名称。
+If you are using Prometheus metrics from these categories and are using a non-empty prefix, please update those metrics to match their new prefixed names.
 
 ## 1.47.0
 
-### 变更内容？
+### What changed?
 
-调用 `$(...).last()`（或 `$(...).first()` 或 `$(...).all()`）不带参数时，返回连接两个节点的输出的最后一项（或第一项或所有项）。之前返回的是该节点的第一个输出的项/项。
+Calling `$(...).last()` (or `$(...).first()` or `$(...).all()` respectively) without arguments is returning the the last item (or first or all items) of the output that connects the two nodes. Before it was returning the item/items of the first output of that node.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您在具有多个输出的节点（例如 `If`、`Switch`、`Compare Datasets` 等）中不带参数使用 `$(...).last()`（或 `$(...).first()` 或 `$(...)all()`），并希望其默认为第一个输出。在这种情况下，将其更改为 `$(...).last(0)`（或 `first` 或 `all`）。
+If you are using `$(...).last()` (or `$(...).first()` or `$(...)all()` respectively) without arguments for nodes that have multiple outputs (e.g. `If`, `Switch`, `Compare Datasets`, etc.) and you want it to default to the first output. In that case change it to `$(...).last(0)` (or `first` or `all` respectively).
 
-这不影响数组函数 `[].last()`、`[].first()`。
+This does not affect the Array functions `[].last()`, `[].first()`.
 
 ## 1.40.0
 
-### 变更内容？
+### What changed?
 
-环境变量 `DB_POSTGRESDB_USER` 的默认值从 `root` 切换为 `postgres`。
+The default value for the `DB_POSTGRESDB_USER` environment variable was switched from `root` to `postgres`.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您的 Postgres 连接依赖于 `DB_POSTGRESDB_USER` 环境变量的旧默认值 `root`，您现在必须在环境中显式设置 `DB_POSTGRESDB_USER` 为 `root`。
+If your Postgres connection is relying on the old default value `root` for the `DB_POSTGRESDB_USER` environment variable, you must now explicitly set `DB_POSTGRESDB_USER` to `root` in your environment.
 
 ## 1.37.0
 
-### 变更内容？
+### What changed?
 
-`execute` CLI 命令的 `--file` 标志已被移除。
+The `--file` flag for the `execute` CLI command has been removed.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您的脚本依赖于 `execute` CLI 命令的 `--file` 标志，请更新它们以首先导入工作流，然后使用 `--id` 标志执行它。
+If you have scripts relying on the `--file` flag for the `execute` CLI command, update them to first import the workflow and then execute it using the `--id` flag.
 
 ## 1.32.0
 
-### 变更内容？
+### What changed?
 
-n8n 身份验证 cookie 现在默认设置了 `Secure` 标志。
+n8n auth cookie has `Secure` flag set by default now.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您在 `localhost` 以外的域上运行 n8n 而没有 HTTP**S**，您需要设置 HTTPS，或者可以通过将环境变量 `N8N_SECURE_COOKIE` 设置为 `false` 来禁用安全标志。
+If you are running n8n without HTTP**S** on a domain other than `localhost`, you need to either setup HTTPS, or you can disable the secure flag by setting the env variable `N8N_SECURE_COOKIE` to `false`.
 
 ## 1.27.0
 
-### 变更内容？
+### What changed?
 
-执行模式 `own` 被移除。
-如果 `EXECUTIONS_PROCESS` 设置为 `main` 或配置文件中的 `executions.process` 设置为 `main`，n8n 将打印警告，但正常启动。
-如果 `EXECUTIONS_PROCESS` 设置为 `own` 或配置文件中的 `executions.process` 设置为 `own`，n8n 将打印错误消息并拒绝启动。
+The execution mode `own` was removed.
+If `EXECUTIONS_PROCESS` is set to `main` or if `executions.process` in a config file is set to `main` n8n will print a warning, but start up normally.
+If `EXECUTIONS_PROCESS` is set to `own` or if `executions.process` in a config file is set to `own` n8n will print an error message and refuse to start up.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您使用 `own` 模式并需要隔离和性能提升，请考虑使用队列模式，否则通过删除环境变量或配置字段切换到主模式。
-如果您设置了环境变量 `EXECUTIONS_PROCESS` 或配置字段 `executions.process`，请将其移除。环境变量不再有效，配置字段将在未来版本中被移除，防止 n8n 启动。
+If you use `own` mode and need the isolation and performance gains, please consider using queue mode instead, otherwise switch to main mode by removing the environment variable or config field.
+If you have the environment variable `EXECUTIONS_PROCESS` or the config field `executions.process` set, please remove them. The environment variable has no effect anymore and the configuration field will be removed in future releases, prevent n8n from starting if it is still set.
 
 ## 1.25.0
 
-### 变更内容？
+### What changed?
 
-如果主实例上的环境变量 `N8N_ENCRYPTION_KEY` 与配置文件中的 `encryptionKey` 不匹配，主实例将无法初始化。如果工作节点上缺少环境变量 `N8N_ENCRYPTION_KEY`，工作节点将无法初始化。
+If the `N8N_ENCRYPTION_KEY` environment variable on a main instance does not match the `encryptionKey` in the config file, the main instance will not initialize. If the `N8N_ENCRYPTION_KEY` environment variable is missing on a worker, the worker will not initialize.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果将环境变量 `N8N_ENCRYPTION_KEY` 传递给主实例，请确保其与配置文件中的 `encryptionKey` 匹配。如果您使用工作节点，请将环境变量 `N8N_ENCRYPTION_KEY` 传递给它们。
+If passing an `N8N_ENCRYPTION_KEY` environment variable to the main instance, make sure it matches the `encryptionKey` in the config file. If you are using workers, pass the `N8N_ENCRYPTION_KEY` environment variable to them.
 
 ## 1.24.0
 
-### 变更内容？
+### What changed?
 
-标志 `N8N_CACHE_ENABLED` 被移除。缓存现在始终启用。
+The flag `N8N_CACHE_ENABLED` was removed. The cache is now always enabled.
 
-此外，凭据中的表达式现在遵循配对项，因此如果您有多个输入项，n8n 将尝试配对匹配的行以填写凭据详细信息。
+Additionally, expressions in credentials now follow the paired item, so if you have multiple input items, n8n will try to pair the matching row to fill in the credential details.
 
-在 Monday.com 节点中，由于 API 更改，`column_values` 数组中条目的数据结构已更改
+In the Monday.com Node, due to API changes, the data structure of entries in `column_values` array has changed
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您使用标志 `N8N_CACHE_ENABLED`，请将其从设置中移除。
+If you are using the flag `N8N_CACHE_ENABLED`, remove it from your settings.
 
-关于凭据，如果您在凭据中使用表达式，您可能需要重新审视它们。以前，n8n 只会坚持第一个项目，但现在它将尝试匹配正确的配对项目。
+In regards to credentials, if you use expression in credentials, you might want to revisit them. Previously, n8n would stick to the first item only, but now it will try to match the proper paired item.
 
-如果您使用 Monday.com 节点并引用 `column_values` 属性，请在下表中检查您是否使用了其条目的任何受影响属性。
+If you are using the Monday.com node and refering to `column_values` property, check in table below if you are using any of the affected properties of its entries.
 
-| 资源   | 操作           | 之前        | 新                 |
+| Resource   | Operation           | Previous        | New                 |
 | ---------- | ------------------- | --------------- | ------------------- |
 | Board      | Get                 | owner           | owners              |
 | Board      | Get All             | owner           | owners              |
@@ -214,118 +232,118 @@ n8n 身份验证 cookie 现在默认设置了 `Secure` 标志。
 | Board Item | Get All             | additional_info | column.settings_str |
 | Board Item | Get By Column Value | additional_info | column.settings_str |
 
-\*column.settings_str 不是 additional_info 的完整等价物
+\*column.settings_str is not a complete equivalent additional_info
 
 ## 1.22.0
 
-### 变更内容？
+### What changed?
 
-哈希算法 `ripemd160` 从 `.hash()` 表达式中删除。
-`sha3` 哈希算法现在返回有效的 sha3-512 哈希，而不是以前返回的 `Keccak` 哈希。
+Hash algorithm `ripemd160` is dropped from `.hash()` expressions.
+`sha3` hash algorithm now returns a valid sha3-512 has, unlike the previous implementation that returned a `Keccak` hash instead.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您在表达式中使用哈希算法 `ripemd160` 的 `.hash` 助手，您需要切换到其他支持的算法之一。
+If you are using `.hash` helpers in expressions with hash algorithm `ripemd160`, you need to switch to one of the other supported algorithms.
 
 ## 1.15.0
 
-### 变更内容？
+### What changed?
 
-到目前为止，在主模式下，n8n 在关闭时取消注册 webhook，并在启动时重新注册它们。队列模式和标志 `N8N_SKIP_WEBHOOK_DEREGISTRATION_SHUTDOWN` 跳过 webhook 注销。
+Until now, in main mode, n8n used to deregister webhooks at shutdown and reregister them at startup. Queue mode and the flag `N8N_SKIP_WEBHOOK_DEREGISTRATION_SHUTDOWN` skipped webhook deregistration.
 
-从现在开始，在主模式和队列模式下，n8n 不再在启动和关闭时注销 webhook，并且标志 `N8N_SKIP_WEBHOOK_DEREGISTRATION_SHUTDOWN` 被移除。n8n 假设第三方服务将重试未处理的 webhook 请求。
+As from now, in both main and queue modes, n8n no longer deregisters webhooks at startup and shutdown, and the flag `N8N_SKIP_WEBHOOK_DEREGISTRATION_SHUTDOWN` is removed. n8n assumes that third-party services will retry unhandled webhook requests.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果使用标志 `N8N_SKIP_WEBHOOK_DEREGISTRATION_SHUTDOWN`，请注意它不再有效，可以从设置中移除。
+If using the flag `N8N_SKIP_WEBHOOK_DEREGISTRATION_SHUTDOWN`, note that it no longer has effect and can be removed from your settings.
 
 ## 1.9.0
 
-### 变更内容？
+### What changed?
 
-在节点中，`this.helpers.getBinaryStream()` 现在是异步的。
+In nodes, `this.helpers.getBinaryStream()` is now async.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您的节点使用 `this.helpers.getBinaryStream()`，请在调用时添加 `await`。
+If your node uses `this.helpers.getBinaryStream()`, add `await` when calling it.
 
-示例：
+Example:
 
 ```typescript
-const binaryStream = this.helpers.getBinaryStream(id); // 直到 1.9.0
-const binaryStream = await this.helpers.getBinaryStream(id); // 自 1.9.0 起
+const binaryStream = this.helpers.getBinaryStream(id); // until 1.9.0
+const binaryStream = await this.helpers.getBinaryStream(id); // since 1.9.0
 ```
 
-### 变更内容？
+### What changed?
 
-环境变量 `N8N_BINARY_DATA_TTL` 和 `EXECUTIONS_DATA_PRUNE_TIMEOUT` 不再有任何效果，可以安全地移除。n8n 目前在修剪期间与执行一起清理二进制数据，而不是依赖于二进制数据的 TTL 系统。
+The env vars `N8N_BINARY_DATA_TTL` and `EXECUTIONS_DATA_PRUNE_TIMEOUT` no longer have any effect and can be safely removed. Instead of relying on a TTL system for binary data, n8n currently cleans up binary data together with executions during pruning.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果使用这些标志，请将它们从设置中移除，并注意新的行为。
+If using these flags, remove them from your settings and be mindful of the new behavior.
 
 ## 1.6.0
 
-### 变更内容？
+### What changed?
 
-环境变量 `N8N_PERSISTED_BINARY_DATA_TTL` 不再有任何效果，可以移除。此遗留标志最初是为了支持临时执行而引入的（请参阅 [详细信息](https://github.com/n8n-io/n8n/pull/7046)），但不再支持。
+The env var `N8N_PERSISTED_BINARY_DATA_TTL` no longer has any effect and can be removed. This legacy flag was originally introduced to support ephemeral executions (see [details](https://github.com/n8n-io/n8n/pull/7046)), which are no longer supported.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果使用此标志，请将其从设置中移除。
+If using this flag, remove it from your settings.
 
 ## 1.5.0
 
-### 变更内容？
+### What changed?
 
-在代码节点中，`console.log` 默认不输出到 stdout。
+In the Code node, `console.log` does not output to stdout by default.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您依赖于代码节点的非手动执行的 `console.log`，您需要将环境变量 `CODE_ENABLE_STDOUT` 设置为 `true`，以将代码节点日志发送到进程的 stdout。
+If you were relying on `console.log` for non-manual executions of a Code node, you need to set the env variable `CODE_ENABLE_STDOUT` to `true` to send Code node logs to process's stdout.
 
 ## 1.2.0
 
-### 变更内容？
+### What changed?
 
-对于 Linear 节点，问题创建中的优先级为 `4`（以前错误地为 `3`）表示 `Low`。
+For the Linear node, priority in issue creation is `4` (previously incorrectly `3`) for `Low`.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您使用 `Low`，您设置的优先级为 `Normal`，请仔细检查您设置的优先级是否符合您的意图。
+If you were using `Low`, you were setting a priority of `Normal`, so please double check you are setting the priority you intend.
 
 ## 1.0.0
 
-### 变更内容？
+### What changed?
 
-n8n 现在要求的最低 Node.js 版本为 v18。
+The minimum Node.js version required for n8n is now v18.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您通过 npm 或 PM2 使用 n8n，或者您正在为 n8n 做贡献。
+If you're using n8n via npm or PM2 or if you're contributing to n8n.
 
-### 如何升级：
+### How to upgrade:
 
-将 Node.js 版本更新到 v18 或更高版本。
+Update the Node.js version to v18 or above.
 
 ## 0.234.0
 
-### 变更内容？
+### What changed?
 
-此版本引入了两个不可逆的更改：
+This release introduces two irreversible changes:
 
-- n8n 数据库将使用字符串而不是数值来标识工作流和凭据
-- 执行数据被拆分到一个单独的数据库表中
+- The n8n database will use strings instead of numeric values to identify workflows and credentials
+- Execution data is split into a separate database table
 
-### 何时需要采取行动？
+### When is action necessary?
 
-无法使用旧版本的 n8n 读取 n8n@0.234.0 数据库，因此我们建议您在迁移前进行完整备份。
+It will not be possible to read a n8n@0.234.0 database with older versions of n8n, so we recommend that you take a full backup before migrating.
 
 ## 0.232.0
 
-### 变更内容？
+### What changed?
 
-由于 Node.js/OpenSSL 升级，以下加密算法不再受支持。
+Due to Node.js/OpenSSL upgrade, the following crypto algorithms are not supported anymore.
 
 - RSA-MD4
 - RSA-MDC2
@@ -334,154 +352,154 @@ n8n 现在要求的最低 Node.js 版本为 v18。
 - mdc2
 - mdc2WithRSA
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您在任何工作流中的 Crypto 节点中使用上述任何加密算法，请将节点中的算法属性更新为支持的值之一。
+If you're using any of the above mentioned crypto algorithms in Crypto node in any of your workflows, then please update the algorithm property in the node to one of the supported values.
 
-### 变更内容？
+### What changed?
 
-`LoneScale List` 节点已重命名为 `LoneScale`。
+The `LoneScale List` node has been renamed to `LoneScale`.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您在任何工作流中使用了 `LoneScale List` 节点。
+If you have used the `LoneScale List` node in any of your workflows.
 
-### 如何升级：
+### How to upgrade:
 
-更新任何使用 `LoneScale List` 的工作流以使用更新的节点。
+Update any workflows using `LoneScale List` to use the updated node.
 
 ## 0.226.0
 
-### 变更内容？
+### What changed?
 
-`extractDomain` 和 `isDomain` 现在也匹配 localhost、没有协议的域和带有查询参数的域。
-`extractUrl` 和 `isUrl` 还匹配 localhost 和带有查询参数的域。
+The `extractDomain` and `isDomain` are now also matching localhost, domains without protocol and domains with query parameters.
+The `extractUrl` and `isUrl` are additionally also matching localhost and domains with query parameters.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您使用 `extractDomain` 或 `isDomain` 函数，并期望它们不匹配 localhost、没有协议的域和带有查询参数的域。
+If you're using the `extractDomain` or `isDomain` functions and expect them to not match localhost, domains without protocol and domains with query parameters.
 
 ## 0.223.0
 
-### 变更内容？
+### What changed?
 
-n8n 现在要求的最低 Node.js 版本为 v16。
+The minimum Node.js version required for n8n is now v16.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您通过 npm 或 PM2 使用 n8n，或者您正在为 n8n 做贡献。
+If you're using n8n via npm or PM2 or if you're contributing to n8n.
 
-### 如何升级：
+### How to upgrade:
 
-将 Node.js 版本更新到 v16 或更高版本。
+Update the Node.js version to v16 or above.
 
 ## 0.214.0
 
-### 变更内容？
+### What changed?
 
-无效的 Luxon 日期时间不再解析为 `null`。现在它们抛出错误 `invalid DateTime`。
+Invalid Luxon datetimes no longer resolve to `null`. Now they throw the error `invalid DateTime`.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您依赖于上述行为，请检查您的工作流以确保您处理无效的 Luxon 日期时间。
+If you are relying on the above behavior, review your workflow to ensure you handle invalid Luxon datetimes.
 
 ## 0.202.0
 
-### 变更内容？
+### What changed?
 
-从 NPM 切换到 PNPM 进行开发。
+Switched from NPM to PNPM for development.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您正在为 n8n 做贡献。
+If you are contributing to n8n.
 
-### 如何升级：
+### How to upgrade:
 
-确保您的本地开发设置已更新为最新的 [贡献指南](../../CONTRIBUTING.md)。
+Make sure that your local development setup is up to date with the latest [Contribution Guide](../../CONTRIBUTING.md).
 
 ## 0.198.0
 
-### 变更内容？
+### What changed?
 
-合并节点操作列表已重新排列。
+The Merge node list of operations was rearranged.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您使用了经过大修的合并节点和"按字段合并"、"按位置合并"或"多路复用"操作。
+If you are using the overhauled Merge node and 'Merge By Fields', 'Merge By Position' or 'Multiplex' operation.
 
-### 如何升级：
+### How to upgrade:
 
-转到使用合并节点的工作流，选择"组合"操作，然后从"组合模式"中选择与以前使用的操作匹配的选项。如果您想在错误时继续，可以将"继续失败"设置为 true。
+Go to the workflows that use the Merge node, select 'Combine' operation and then choose an option from 'Combination Mode' that matches an operation that was previously used. If you want to continue even on error, you can set "Continue on Fail" to true.
 
 ## 0.171.0
 
-### 变更内容？
+### What changed?
 
-当响应包含错误时，GraphQL 节点现在会出错。
+The GraphQL node now errors when the response includes an error.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您使用 GraphQL 节点。
+If you are using the GraphQL node.
 
-### 如何升级：
+### How to upgrade:
 
-转到使用 GraphQL 节点的工作流并调整它们以适应新行为。如果您想在错误时继续，可以将"继续失败"设置为 true。
+Go to the workflows that use the GraphQL node and adjust them to the new behavior. If you want to continue even on error, you can set "Continue on Fail" to true.
 
 ## 0.165.0
 
-### 变更内容？
+### What changed?
 
-当"忽略 SSL 问题"选项设置为 False 时，Hive 节点现在会正确拒绝无效的 SSL 证书。
+The Hive node now correctly rejects invalid SSL certificates when the "Ignore SSL Issues" option is set to False.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您使用自签名证书与 Hive。
+If you are using a self signed certificate with The Hive.
 
-### 如何升级：
+### How to upgrade:
 
-转到 Hive 的凭据，启用"忽略 SSL 问题"选项。
+Go to the credentials for The Hive, Enable the "Ignore SSL Issues" option.
 
 ## 0.139.0
 
-### 变更内容？
+### What changed?
 
-对于 HubSpot 触发器节点，身份验证过程已更改为 OAuth2。
+For the HubSpot Trigger node, the authentication process has changed to OAuth2.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您使用 Hubspot 触发器。
+If you are using the Hubspot Trigger.
 
-### 如何升级：
+### How to upgrade:
 
-在 HubSpot 中创建一个应用程序，使用客户端 ID、客户端密钥、应用程序 ID 和开发者密钥，并完成 OAuth2 流程。
+Create an app in HubSpot, use the Client ID, Client Secret, App ID, and the Developer Key, and complete the OAuth2 flow.
 
 ## 0.135.0
 
-### 变更内容？
+### What changed?
 
-凭据和二进制数据的节点内核方法已更改。
+The in-node core methods for credentials and binary data have changed.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您使用自定义 n8n 节点。
+If you are using custom n8n nodes.
 
-### 如何升级：
+### How to upgrade:
 
-1. 方法 `this.getCredentials(myNodeCredentials)` 现在是异步的。因此，必须在其前面添加 `await`。
+1. The method `this.getCredentials(myNodeCredentials)` is now async. So `await` has to be added in front of it.
 
-示例：
+Example:
 
 ```typescript
-// 0.135.0 之前：
+// Before 0.135.0:
 const credentials = this.getCredentials(credentialTypeName);
 
-// 自 0.135.0 起：
+// From 0.135.0:
 const credentials = await this.getCredentials(myNodeCredentials);
 ```
 
-2. 不应再直接访问二进制数据，而是必须使用方法 `await this.helpers.getBinaryDataBuffer(itemIndex, binaryPropertyName)`。
+2. Binary data should not get accessed directly anymore, instead the method `await this.helpers.getBinaryDataBuffer(itemIndex, binaryPropertyName)` has to be used.
 
-示例：
+Example:
 
 ```typescript
 const items = this.getInputData();
@@ -490,169 +508,169 @@ for (const i = 0; i < items.length; i++) {
 	const item = items[i].binary as IBinaryKeyData;
 	const binaryPropertyName = this.getNodeParameter('binaryPropertyName', i);
 	const binaryData = item[binaryPropertyName] as IBinaryData;
-	// 0.135.0 之前：
+	// Before 0.135.0:
 	const binaryDataBuffer = Buffer.from(binaryData.data, BINARY_ENCODING);
-	// 自 0.135.0 起：
+	// From 0.135.0:
 	const binaryDataBuffer = await this.helpers.getBinaryDataBuffer(i, binaryPropertyName);
 }
 ```
 
 ## 0.131.0
 
-### 变更内容？
+### What changed?
 
-对于 Pipedrive 常规节点，`deal:create` 操作现在需要组织 ID 或人员 ID，以符合即将对 Pipedrive API 的更改。
+For the Pipedrive regular node, the `deal:create` operation now requires an organization ID or person ID, in line with upcoming changes to the Pipedrive API.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您在 Pipedrive 常规节点中使用 `deal:create` 操作，请设置组织 ID 或人员 ID。
+If you are using the `deal:create` operation in the Pipedrive regular node, set an organization ID or a person ID.
 
 ## 0.130.0
 
-### 变更内容？
+### What changed?
 
-对于 Taiga 常规和触发器节点，服务器和云凭据类型现在统一为单一凭据类型，并且 `version` 参数已被移除。此外，`issue:create` 操作现在会自动将标签加载为 `multiOptions`。
+For the Taiga regular and trigger nodes, the server and cloud credentials types are now unified into a single credentials type and the `version` param has been removed. Also, the `issue:create` operation now automatically loads the tags as `multiOptions`.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您使用 Taiga 节点，请重新连接凭据。如果您在 `issue:create` 操作中使用标签，请重新选择它们。
+If you are using the Taiga nodes, reconnect the credentials. If you are using tags in the `issue:create` operation, reselect them.
 
 ## 0.127.0
 
-### 变更内容？
+### What changed?
 
-对于 Zoho 节点，`lead:create` 操作现在需要"公司"参数，"地址"参数现在位于"附加选项"中，"标题"和"是否重复记录"参数被移除。此外，`lead:delete` 操作现在仅返回已删除线索的 `id`。
+For the Zoho node, the `lead:create` operation now requires a "Company" parameter, the parameter "Address" is now inside "Additional Options", and the parameters "Title" and "Is Duplicate Record" were removed. Also, the `lead:delete` operation now returns only the `id` of the deleted lead.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您使用 `lead:create` 并带有"公司"或"地址"，请重置参数；对于其他两个参数，无需采取行动。如果您使用 `lead:delete` 的响应，请重新选择 `id` 键。
+If you are using `lead:create` with "Company" or "Address", reset the parameters; for the other two parameters, no action needed. If you are using the response from `lead:delete`, reselect the `id` key.
 
 ## 0.118.0
 
-### 变更内容？
+### What changed?
 
-n8n 现在要求的最低 Node.js 版本为 v14。
+The minimum Node.js version required for n8n is now v14.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您通过 npm 或 PM2 使用 n8n，或者您正在为 n8n 做贡献。
+If you're using n8n via npm or PM2 or if you're contributing to n8n.
 
-### 如何升级：
+### How to upgrade:
 
-将 Node.js 版本更新到 v14 或更高版本。
+Update the Node.js version to v14 or above.
 
 ---
 
-### 变更内容？
+### What changed?
 
-在 Postgres、CrateDB、QuestDB 和 TimescaleDB 节点中，`Execute Query` 操作返回所有执行的查询的结果，而不仅仅是一个结果。
+In the Postgres, CrateDB, QuestDB and TimescaleDB nodes the `Execute Query` operation returns the result from all queries executed instead of just one of the results.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您使用上述任何节点的 `Execute Query` 操作，并且结果对您很重要，建议您重新审视您的逻辑。节点输出现在可能包含比以前更多的信息。此更改是为了使 n8n 的行为更加一致，其中具有多行输入的输入应根据所有输入数据产生结果，而不仅仅是一个。请注意：n8n 已经根据输入运行多个查询。只有输出被更改。
+If you use any of the above mentioned nodes with the `Execute Query` operation and the result is relevant to you, you are encouraged to revisit your logic. The node output may now contain more information than before. This change was made so that the behavior is more consistent across n8n where input with multiple rows should yield results acccording all input data instead of only one. Please note: n8n was already running multiple queries based on input. Only the output was changed.
 
 ## 0.117.0
 
-### 变更内容？
+### What changed?
 
-"激活触发器"节点已被移除。此节点已被两个其他节点替换。
+Removed the "Activation Trigger" node. This node was replaced by two other nodes.
 
-"激活触发器"节点在版本 0.113.0 中添加，但未完全符合 UX，因此我们决定尽快重构和更改它，以便影响最少的用户。
+The "Activation Trigger" node was added on version 0.113.0 but was not fully compliant to UX, so we decided to refactor and change it ASAP so it affects the least possible users.
 
-新节点是"n8n 触发器"和"工作流触发器"。在行为上，节点是相同的，我们只是拆分了功能以使其对用户更直观。
+The new nodes are "n8n Trigger" and "Workflow Trigger". Behavior-wise, the nodes do the same, we just split the functionality to make it more intuitive to users.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您在任何工作流中使用"激活触发器"，请将其替换为新节点。
+If you use the "Activation Trigger" in any of your workflows, please replace it by the new nodes.
 
-### 如何升级：
+### How to upgrade:
 
-删除以前的节点，并根据您的工作流添加新节点。
+Remove the previous node and add the new ones according to your workflows.
 
 ---
 
-更改了使用 Postgres Wire Protocol 的节点的行为：Postgres、QuestDB、CrateDB 和 TimescaleDB。
+Changed the behavior for nodes that use Postgres Wire Protocol: Postgres, QuestDB, CrateDB and TimescaleDB.
 
-所有节点都已标准化，现在遵循相同的模式。对于大多数情况，行为将相同，但现在可以探索新添加的功能。
+All nodes have been standardized and now follow the same patterns. Behavior will be the same for most cases, but new added functionality can now be explored.
 
-您现在还可以告知您希望 n8n 如何执行查询。默认模式是"多个查询"，这与以前的行为相同，但您现在可以独立或事务地运行它们。此外，"继续失败"现在在新模式中起着重要作用。
+You can now also inform how you would like n8n to execute queries. Default mode is `Multiple queries` which translates to previous behavior, but you can now run them `Independently` or `Transaction`. Also, `Continue on Fail` now plays a major role for the new modes.
 
-`insert` 操作的节点输出现在依赖于新参数 `Return fields`，就像以前的 `update` 操作一样。
+The node output for `insert` operations now rely on the new parameter `Return fields`, just like `update` operations did previously.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您依赖于任何上述节点的 `insert` 操作返回的输出，我们建议您检查您的工作流。
+If you rely on the output returned by `insert` operations for any of the mentioned nodes, we recommend you review your workflows.
 
-默认情况下，所有 `insert` 操作将具有 `Return fields: *` 作为默认设置，返回所有插入的信息。
+By default, all `insert` operations will have `Return fields: *` as the default, setting, returning all information inserted.
 
-以前，节点会返回它接收到的所有信息，而不考虑数据库中实际发生的情况。
+Previously, the node would return all information it received, without taking into account what actually happened in the database.
 
 ## 0.113.0
 
-### 变更内容？
+### What changed?
 
-在 Dropbox 节点中，两个凭据类型（访问令牌和 OAuth2）都有一个名为"APP 访问类型"的新参数。
+In the Dropbox node, both credential types (Access Token & OAuth2) have a new parameter called "APP Access Type".
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您使用具有权限类型"应用程序文件夹"的 Dropbox 应用程序。
+If you are using a Dropbox APP with permission type, "App Folder".
 
-### 如何升级：
+### How to upgrade:
 
-打开您的 Dropbox 节点的凭据，并将"APP 访问类型"参数设置为"应用程序文件夹"。
+Open your Dropbox node's credentials and set the "APP Access Type" parameter to "App Folder".
 
 ## 0.111.0
 
-### 变更内容？
+### What changed?
 
-在 Dropbox 节点中，现在所有操作都是相对于用户的根目录执行的。
+In the Dropbox node, now all operations are performed relative to the user's root directory.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您使用任何资源/操作进行 OAuth2 身份验证。
+If you are using any resource/operation with OAuth2 authentication.
 
-如果您在 Dropbox 帐户中使用 `folder:list` 操作，并且参数 `Folder Path` 为空（根路径），并且您在 Dropbox 帐户中有一个团队空间。
+If you are using the `folder:list` operation with the parameter `Folder Path` empty (root path) and have a Team Space in your Dropbox account.
 
-### 如何升级：
+### How to upgrade:
 
-打开 Dropbox 节点，转到您正在使用的 OAuth2 凭据并重新连接它。
+Open the Dropbox node, go to the OAuth2 credential you are using and reconnect it again.
 
-此外，如果您使用 `folder:list` 操作，请确保您的逻辑考虑到响应中的团队文件夹。
+Also, if you are using the `folder:list` operation, make sure your logic is taking into account the team folders in the response.
 
 ## 0.105.0
 
-### 变更内容？
+### What changed?
 
-在 Hubspot 触发器中，现在可以提供多个事件，并且字段 `App ID` 被移动到凭据中。
+In the Hubspot Trigger, now multiple events can be provided and the field `App ID` was so moved to the credentials.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您使用 Hubspot 触发器节点。
+If you are using the Hubspot Trigger node.
 
-### 如何升级：
+### How to upgrade:
 
-打开 Hubspot 触发器并重新设置事件。还打开凭据 `Hubspot Developer API` 并设置您的 APP ID。
+Open the Hubspot Trigger and set the events again. Also open the credentials `Hubspot Developer API` and set your APP ID.
 
 ## 0.104.0
 
-### 变更内容？
+### What changed?
 
-不再支持 MongoDB 作为 n8n 的数据库，因为 MongoDB 在文档中保存大量数据时存在问题，以及其他问题。
+Support for MongoDB as a database for n8n has been dropped as MongoDB had problems saving large amounts of data in a document, among other issues.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您一直在使用 MongoDB 作为 n8n 的数据库。请注意，这与 MongoDB 节点无关。
+If you have been using MongoDB as a database for n8n. Please note that this is not related to the MongoDB node.
 
-### 如何升级：
+### How to upgrade:
 
-在升级之前，您可以使用 CLI [导出](https://docs.n8n.io/hosting/cli-commands/#export-workflows-and-credentials) 您的所有凭据和工作流。
+Before upgrading, you can [export](https://docs.n8n.io/hosting/cli-commands/#export-workflows-and-credentials) all your credentials and workflows using the CLI.
 
 ```
 n8n export:workflow --backup --output=backups/latest/
 n8n export:credentials --backup --output=backups/latest/
 ```
 
-然后，您可以将数据库更改为 [此处](https://docs.n8n.io/hosting/configuration/supported-databases-settings) 提到的受支持数据库之一。最后，您可以升级 n8n 并将所有凭据和工作流 [导入](https://docs.n8n.io/hosting/cli-commands/#import-workflows-and-credentials) 回 n8n。
+You can then change the database to one of the supported databases mentioned [here](https://docs.n8n.io/hosting/configuration/supported-databases-settings). Finally, you can upgrade n8n and [import](https://docs.n8n.io/hosting/cli-commands/#import-workflows-and-credentials) all your credentials and workflows back into n8n.
 
 ```
 n8n import:workflow --separate --input=backups/latest/
@@ -661,131 +679,131 @@ n8n import:credentials --separate --input=backups/latest/
 
 ## 0.102.0
 
-### 变更内容？
+### What changed?
 
-- `As User` 属性和 `User Name` 字段被合并并重命名为 `Send as User`。它也被移动到"添加选项"下。
-- `Ephemeral` 属性被移除。要发送临时消息，您必须选择"发布（临时）"操作。
+- The `As User` property and the `User Name` field got combined and renamed to `Send as User`. It also got moved under “Add Options”.
+- The `Ephemeral` property got removed. To send an ephemeral message, you have to select the "Post (Ephemeral)" operation.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您在 Slack 节点中使用以下字段或属性：
+If you are using the following fields or properties in the Slack node:
 
 - As User
 - Ephemeral
 - User Name
 
-### 如何升级：
+### How to upgrade:
 
-打开 Slack 节点并重新设置它们为适当的值。
+Open the Slack node and set them again to the appropriate values.
 
 ---
 
-### 变更内容？
+### What changed?
 
-如果您在 Typeform 中有一个问题使用先前回答的问题作为其文本的一部分，Typeform 触发器节点中的问题文本将如下所示：
+If you have a question in Typeform that uses a previously answered question as part of its text, the question text would look like this in the Typeform Trigger node:
 
-`您选择了 {{field:23234242}} 作为您的答案。这样对吗？`
+`You have chosen {{field:23234242}} as your answer. Is this correct?`
 
-这些大括号破坏了表达式编辑器。更改使其现在显示如下：
+Those curly braces broke the expression editor. The change makes it now display like this:
 
-`您选择了 [field:23234242] 作为您的答案。这样对吗？`
+`You have chosen [field:23234242] as your answer. Is this correct?`
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您使用 Typeform 触发器节点，并使用 [回忆信息](https://help.typeform.com/hc/en-us/articles/360050447072-What-is-Recall-information-) 功能的问题。
+If you are using the Typeform Trigger node with questions using the [Recall information](https://help.typeform.com/hc/en-us/articles/360050447072-What-is-Recall-information-) feature.
 
-### 如何升级：
+### How to upgrade:
 
-在使用 Typeform 触发器节点的工作流中，引用此类键名（使用先前回答的问题作为其文本的一部分的问题）的节点需要更新。
+In workflows using the Typeform Trigger node, nodes that reference such key names (questions that use a previously answered question as part of its text) will need to be updated.
 
 ## 0.95.0
 
-### 变更内容？
+### What changed?
 
-在 Harvest 节点中，我们将帐户字段从凭据移动到节点参数。这将允许您在不必创建多个凭据的情况下使用多个帐户。
+In the Harvest Node, we moved the account field from the credentials to the node parameters. This will allow you to work witn multiples accounts without having to create multiples credentials.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您使用 Harvest 节点。
+If you are using the Harvest Node.
 
-### 如何升级：
+### How to upgrade:
 
-打开节点设置参数 `Account ID`。
+Open the node set the parameter `Account ID`.
 
 ## 0.94.0
 
-### 变更内容？
+### What changed?
 
-在 Segment 节点中，我们更改了如何定义属性"traits"和"properties"。现在，可以提供键/值对，允许您发送自定义特征/属性。
+In the Segment Node, we have changed how the properties 'traits' and 'properties' are defined. Now, key/value pairs can be provided, allowing you to send customs traits/properties.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-当设置了属性"traits"或"properties"时，并且使用了以下资源/操作之一：
+When the properties 'traits' or 'properties' are set, and one of the following resources/operations is used:
 
-| 资源 | 操作 |
+| Resource | Operation |
 | -------- | --------- |
 | Identify | Create    |
 | Track    | Event     |
 | Track    | Page      |
 | Group    | Add       |
 
-### 如何升级：
+### How to upgrade:
 
-打开受影响的资源/操作并重新设置参数"traits"或"properties"。
+Open the affected resource/operation and set the parameters 'traits' or 'properties' again.
 
 ## 0.93.0
 
-### 变更内容？
+### What changed?
 
-更改了 Pipedrive 触发器节点的身份验证字段的命名。
+Change in naming of the Authentication field for the Pipedrive Trigger node.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您为节点中的"身份验证"字段设置了"基本身份验证"。
+If you had set "Basic Auth" for the "Authentication" field in the node.
 
-### 如何升级：
+### How to upgrade:
 
-"身份验证"字段已重命名为"传入身份验证"。请将参数"传入身份验证"设置为"基本身份验证"以重新激活它。
+The "Authentication" field has been renamed to "Incoming Authentication". Please set the parameter “Incoming Authentication” to “Basic Auth” to activate it again.
 
 ## 0.90.0
 
-### 变更内容？
+### What changed?
 
-运行 n8n 需要 Node.js 版本 12.9 或更高版本。
+Node.js version 12.9 or newer is required to run n8n.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您运行的 Node.js 版本低于 12.9。
+If you are running Node.js version older than 12.9.
 
-### 如何升级：
+### How to upgrade:
 
-您可以从 [此处](https://nodejs.org/en/download/) 下载并安装最新版本的 Node.js。
+You can find download and install the latest version of Node.js from [here](https://nodejs.org/en/download/).
 
 ## 0.87.0
 
-### 变更内容？
+### What changed?
 
-link.fish 节点被移除，因为服务即将关闭。
+The link.fish node got removed because the service is shutting down.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您正在积极使用 link.fish 节点。
+If you are are actively using the link.fish node.
 
-### 如何升级：
+### How to upgrade:
 
-不幸的是，这是不可能的。我们建议您寻找替代服务。
+Unfortunately, that's not possible. We'd recommend you to look for an alternative service.
 
 ## 0.83.0
 
-### 变更内容？
+### What changed?
 
-在 Active Campaign 节点中，我们更改了 `getAll` 操作如何与各种资源一起工作，以保持一致性。为此，添加了一个名为"Simple"的新参数。
+In the Active Campaign Node, we have changed how the `getAll` operation works with various resources for the sake of consistency. To achieve this, a new parameter called 'Simple' has been added.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-当使用以下资源/操作之一时：
+When one of the following resources/operations is used:
 
-| 资源                  | 操作 |
+| Resource                  | Operation |
 | ------------------------- | --------- |
 | Deal                      | Get All   |
 | Connector                 | Get All   |
@@ -793,66 +811,70 @@ link.fish 节点被移除，因为服务即将关闭。
 | E-commerce Customer       | Get All   |
 | E-commerce Order Products | Get All   |
 
-### 如何升级：
+### How to upgrade:
 
-打开受影响的资源/操作并将参数 `Simple` 设置为 false。
+Open the affected resource/operation and set the parameter `Simple` to false.
 
 ## 0.79.0
 
-### 变更内容？
+### What changed?
 
-我们重命名了 Todoist 节点中的操作，以与代码库保持一致。我们还删除了 `close_match` 和 `delete_match` 操作，因为这些操作可以使用以下操作完成：`getAll`、`close` 和 `delete`。
+We have renamed the operations in the Todoist Node for consistency with the codebase. We also deleted the `close_match` and `delete_match` operations as these can be accomplished using the following operations: `getAll`, `close`, and `delete`.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-当使用以下操作之一时：
+When one of the following operations is used:
 
 - close_by
 - close_match
 - delete_id
 - delete_match
 
-### 如何升级：
+### How to upgrade:
 
-升级后，打开包含 Todoist 节点的所有工作流。设置相应的操作，然后保存工作流。
+After upgrading, open all workflows which contain the Todoist Node. Set the corresponding operation, and then save the workflow.
 
-如果使用了 `close_match` 或 `delete_match` 操作，请使用操作：`getAll`、`delete` 和 `close` 重新创建它们。
+If the operations `close_match` or `delete_match` are used, recreate them using the operations: `getAll`, `delete`, and `close`.
 
 ## 0.69.0
 
-### 变更内容？
+### What changed?
 
-我们简化了 Twitter 节点处理附件的方式。您现在可以通过单击"添加字段"并选择"附件"来添加附件，而不是单击"添加附件"并必须指定"类别"。不再有选项来指定您添加的附件类型。
+We have simplified how attachments are handled by the Twitter node. Rather than clicking on `Add Attachments` and having to specify the `Catergory`, you can now add attachments by just clicking on `Add Field` and selecting `Attachments`. There's no longer an option to specify the type of attachment you are adding.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您在 Twitter 节点中使用了附件选项。
+If you have used the Attachments option in your Twitter nodes.
 
-### 如何升级：
+### How to upgrade:
 
-您需要为 Twitter 节点重新创建附件。
+You'll need to re-create the attachments for the Twitter node.
 
 ## 0.68.0
 
-### 变更内容？
+### What changed?
 
-为了更容易使用 Slack 节点输出的数据，如果唯一的其他属性是 `ok": true`。在这种情况下，它现在直接返回"channel"下的数据。
+To make it easier to use the data which the Slack-Node outputs we no longer return the whole
+object the Slack-API returns if the only other property is `"ok": true`. In this case it returns
+now directly the data under "channel".
 
-### 何时需要采取行动？
+### When is action necessary?
 
-当您当前使用 Slack 节点进行操作通道 -> 创建并使用节点输出的任何数据时。
+When you currently use the Slack-Node with Operations Channel -> Create and you use
+any of the data the node outputs.
 
-### 如何升级：
+### How to upgrade:
 
-所有引用的值之前在"channel"属性下的值现在都在主级别。这意味着这些表达式必须进行调整。
+All values that get referenced which were before under the property "channel" are now on the main level.
+This means that these expressions have to get adjusted.
 
-这意味着如果之前使用的表达式是：
+Meaning if the expression used before was:
 
 ```
 {{ $node["Slack"].data["channel"]["id"] }}
 ```
 
-它必须更改为：
+it has to get changed to:
 
 ```
 {{ $node["Slack"].data["id"] }}
@@ -860,43 +882,43 @@ link.fish 节点被移除，因为服务即将关闭。
 
 ## 0.67.0
 
-### 变更内容？
+### What changed?
 
-以下节点的名称未正确设置，现已修复：
+The names of the following nodes were not set correctly and got fixed:
 
-- AMQP 发送器
-- Bitbucket-触发器
+- AMQP Sender
+- Bitbucket-Trigger
 - Coda
-- Eventbrite-触发器
+- Eventbrite-Trigger
 - Flow
-- Flow-触发器
-- Gumroad-触发器
+- Flow-Trigger
+- Gumroad-Trigger
 - Jira
-- Mailchimp-触发器
-- PayPal 触发器
-- 读取 PDF
+- Mailchimp-Trigger
+- PayPal Trigger
+- Read PDF
 - Rocketchat
 - Shopify
-- Shopify-触发器
-- Stripe-触发器
-- Toggl-触发器
+- Shopify-Trigger
+- Stripe-Trigger
+- Toggl-Trigger
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果在任何工作流中使用了上述节点。
+If any of the nodes mentioned above, are used in any of your workflows.
 
-### 如何升级：
+### How to upgrade:
 
-对于上述节点，您需要通过打开凭据并将其从"无访问"移动到"访问"来再次授予它们对凭据的访问权限。完成此操作后，有两种方法可以升级工作流并使其在新版本中工作：
+For the nodes mentioned above, you'll need to give them access to the credentials again by opening the credentials and moving them from "No Access" to "Access". After you've done that, there are two ways to upgrade the workflows and to make them work in the new version:
 
-**简单**
+**Simple**
 
-- 在升级之前记下节点的设置
-- 升级后，从工作流中删除上述节点，并重新创建它们
+- Note down the settings of the nodes before upgrading
+- After upgrading, delete the nodes mentioned above from your workflow, and recreate them
 
-**高级**
+**Advanced**
 
-升级后，在编辑器中选择整个工作流，复制并粘贴到文本编辑器中。在 JSON 中，手动更改节点类型，替换"type"的值如下：
+After upgrading, select the whole workflow in the editor, copy it, and paste it into a text editor. In the JSON, change the node types manually by replacing the values for "type" as follows:
 
 - "n8n-nodes-base.amqpSender" -> "n8n-nodes-base.amqp"
 - "n8n-nodes-base.bitbucket" -> "n8n-nodes-base.bitbucketTrigger"
@@ -915,109 +937,132 @@ link.fish 节点被移除，因为服务即将关闭。
 - "n8n-nodes-base.stripe" -> "n8n-nodes-base.stripeTrigger"
 - "n8n-nodes-base.toggl" -> "n8n-nodes-base.togglTrigger"
 
-然后删除所有现有节点，然后将更改后的 JSON 直接粘贴到 n8n 中。它应该会重新创建所有节点和连接，这次是工作节点。
+Then delete all existing nodes, and then paste the changed JSON directly into n8n. It should then recreate all the nodes and connections again, this time with working nodes.
 
 ## 0.62.0
 
-### 变更内容？
+### What changed?
 
-在函数和函数项节点中，函数"evaluateExpression(...)"被重命名为"$evaluateExpression()"，以简化代码并规范化函数名称。
+The function "evaluateExpression(...)" got renamed to "$evaluateExpression()"
+in Function and FunctionItem Nodes to simplify code and to normalize function
+names.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果在任何函数或函数项节点中使用"evaluateExpression(...)"。
+If "evaluateExpression(...)" gets used in any Function or FunctionItem Node.
 
-### 如何升级：
+### How to upgrade:
 
-只需将"evaluateExpression(...)"替换为"$evaluateExpression(...)"。
+Simply replace the "evaluateExpression(...)" with "$evaluateExpression(...)".
 
 ## 0.52.0
 
-### 变更内容？
+### What changed?
 
-为了确保所有节点的工作方式相似，以便于从工作流的其他部分轻松使用值，并能够在表达式中手动构建源日期，节点必须更改。现在，值不再直接从流中获取，而是必须通过表达式手动设置。
+To make sure that all nodes work similarly, to allow to easily use the value
+from other parts of the workflow and to be able to construct the source-date
+manually in an expression, the node had to be changed. Instead of getting the
+source-date directly from the flow the value has now to be manually set via
+an expression.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果您当前使用"日期和时间"节点。
+If you currently use "Date & Time"-Nodes.
 
-### 如何升级：
+### How to upgrade:
 
-打开"日期和时间"节点，并通过表达式引用应转换的日期。还要将"属性名称"设置为应设置转换日期的属性的名称。
+Open the "Date & Time"-Nodes and reference the date that should be converted
+via an expression. Also, set the "Property Name" to the name of the property the
+converted date should be set on.
 
 ## 0.37.0
 
-### 变更内容？
+### What changed?
 
-为了支持 Rocketchat 本地部署，凭据必须更改。`subdomain` 参数必须重命名为 `domain`。
+To make it possible to support also Rocketchat on-premise the credentials had to be changed.
+The `subdomain` parameter had to get renamed to `domain`.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-当您当前使用 Rocketchat 节点时。
+When you currently use the Rocketchat-Node.
 
-### 如何升级：
+### How to upgrade:
 
-打开 Rocketchat 凭据并填写参数 `domain`。如果您之前设置了子域"example"，现在必须设置为"https://example.rocket.chat"。
+Open the Rocketchat credentials and fill the parameter `domain`. If you had previously the
+subdomain "example" set you have to set now "https://example.rocket.chat".
 
 ## 0.19.0
 
-### 变更内容？
+### What changed?
 
-节点"从 URL 读取文件"已被移除，因为其功能已添加到"HTTP 请求"节点中。
+The node "Read File From Url" got removed as its functionality got added to
+"HTTP Request" node where it belongs.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-如果在任何工作流中使用了"从 URL 读取文件"节点。
+If the "Read File From Url" node gets used in any workflow.
 
-### 如何升级：
+### How to upgrade:
 
-升级后，打开所有包含"从 URL 读取文件"节点的工作流。它们将有一个"？"作为图标，因为它们不再被识别。创建一个新的"HTTP 请求"节点以替换旧节点，并添加与以前节点相同的 URL（如果您不再知道它，可以选择旧节点，复制并粘贴到文本编辑器中，它将显示节点包含的所有数据）。然后将"响应格式"设置为"文件"。一切将像以前一样正常运行。
+After upgrading open all workflows which contain a "Read File From Url" node.
+They will have a "?" as icon as they are not known anymore. Create a new
+"HTTP Request" node to replace the old one and add the same URL as the previous
+node had (in case you do not know it anymore you can select the old node, copy
+it and paste it in a text-editor, it will display all the data the node
+contained). Then set the "Response Format" to "File". Everything will then
+function again like before.
 
 ---
 
-### 变更内容？
+### What changed?
 
-当"HTTP 请求"属性"响应格式"设置为"字符串"时，它默认将数据保存在属性"response"中。在新版本中，现在可以进行配置。默认值也从"response"更改为"data"，以匹配具有类似功能的其他节点。
+When "HTTP Request" property "Response Format" was set to "String" it did save
+the data by default in the property "response". In the new version that can now
+be configured. The default value got also changed from "response" to "data" to
+match other nodes with similar functionality.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-当使用"响应格式"设置为"字符串"的"HTTP 请求"节点时。
+When "HTTP Request" nodes get used which have "Response Format" set to "String".
 
-### 如何升级：
+### How to upgrade:
 
-升级后，打开所有包含相关节点的工作流，并将"二进制属性"设置为"response"。
+After upgrading open all workflows which contain the concerning Nodes and set
+"Binary Property" to "response".
 
 ## 0.18.0
 
-### 变更内容？
+### What changed?
 
-由于拼写错误，代码中经常使用`reponse`而不是`response`。因此，在 Webhook 节点上也是如此。其参数`reponseMode`必须重命名为正确的拼写`responseMode`。
+Because of a typo very often `reponse` instead of `response` got used in code. So also on the Webhook-Node. Its parameter `reponseMode` had to be renamed to correct spelling `responseMode`.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-当使用"响应模式"设置为"最后一个节点"的 Webhook 节点时。
+When Webhook-Nodes get used which have "Response Mode" set to "Last Node".
 
-### 如何升级：
+### How to upgrade:
 
-升级后，打开所有包含相关 Webhook 节点的工作流，并手动将"响应模式"重新设置为"最后一个节点"。
+After upgrading open all workflows which contain the concerning Webhook-Nodes and set "Response Mode" again manually to "Last Node".
 
 ---
 
-### 变更内容？
+### What changed?
 
-由于 n8n 使用的 CLI 库不再维护，并且包含安全漏洞的包，我们不得不切换到另一个库。
+Because the CLI library n8n used was not maintained anymore and included
+packages with security vulnerabilities we had to switch to a different one.
 
-### 何时需要采取行动？
+### When is action necessary?
 
-当您当前直接通过其 JavaScript 文件启动 n8n 时。例如：
+When you currently start n8n in your setup directly via its JavaScript file.
+For example like this:
 
 ```
 /usr/local/bin/node ./dist/index.js start
 ```
 
-### 如何升级：
+### How to upgrade:
 
-将路径更改为其新位置：
+Change the path to its new location:
 
 ```
 /usr/local/bin/node bin/n8n start
