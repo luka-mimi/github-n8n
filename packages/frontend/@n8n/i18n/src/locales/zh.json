@@ -1502,6 +1502,7 @@
   "nodeView.couldntImportWorkflow": "无法导入工作流",
   "nodeView.couldntLoadWorkflow.invalidWorkflowObject": "无效的工作流对象",
   "nodeView.deletesTheCurrentExecutionData": "删除当前执行数据",
+  "nodeView.focusPanel.noExecutionData": "执行上一个节点以便自动完成",
   "nodeView.focusPanel.noParameters.title": "在此显示节点参数，以便于迭代。",
   "nodeView.focusPanel.noParameters.subtitle": "例如，保持你的提示始终可见，这样你就可以在调整时运行工作流。",
   "nodeView.focusPanel.missingParameter": "此参数在节点上不再可见。某个相关参数可能已更改，导致此参数被移除。",
