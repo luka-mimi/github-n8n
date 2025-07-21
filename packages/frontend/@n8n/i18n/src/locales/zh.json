@@ -2611,6 +2611,7 @@
   "workflows.item.created": "已创建",
   "workflows.item.readonly": "只读",
   "workflows.item.archived": "已存档",
+  "workflows.itemSuggestion.try": "尝试模板",
   "workflows.search.placeholder": "搜索",
   "workflows.filters": "筛选器",
   "workflows.filters.tags": "标签",
