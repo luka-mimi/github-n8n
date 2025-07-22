@@ -2560,6 +2560,8 @@
   "workflowSettings.showMessage.saveSettings.title": "工作流设置已保存",
   "workflowSettings.timeoutAfter": "超时时间",
   "workflowSettings.timeoutWorkflow": "超时工作流",
+  "workflowSettings.executionTimeout": "超时工作流",
+  "workflowSettings.tags": "标签",
   "workflowSettings.timezone": "时区",
   "workflowSettings.timeSavedPerExecution": "预计节省的时间",
   "workflowSettings.timeSavedPerExecution.hint": "每次生产执行的分钟数",
