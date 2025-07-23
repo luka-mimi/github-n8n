@@ -1569,6 +1569,8 @@
   "nodeView.setupTemplate": "设置模板",
   "nodeView.expandAllNodes": "展开所有节点",
   "nodeView.collapseAllNodes": "折叠所有节点",
+  "nodeView.enterZoomMode": "进入缩放模式",
+  "nodeView.leaveZoomMode": "退出缩放模式",
   "nodeViewV2.showError.editingNotAllowed": "不允许编辑",
   "nodeViewV2.showError.failedToCreateNode": "创建节点失败",
   "contextMenu.node": "节点 | 节点",
