@@ -3203,6 +3203,7 @@
   "evaluation.runDetail.error.unknownError.solution": "查看执行",
   "evaluation.runDetail.error.noMetricsCollected": "未执行“设置指标”节点",
   "evaluation.runDetail.error.partialCasesFailed": "出现错误",
+  "evaluation.runDetail.notice.useSetInputs": "提示：通过向您的工作流添加评估节点的“设置输入”操作，您可以在此处显示数据集的输入列。",
   "evaluation.runTest": "运行测试",
   "evaluation.stopTest": "停止测试",
   "evaluation.cancelTestRun": "取消测试运行",
