@@ -3159,6 +3159,7 @@
   "evaluation.listRuns.metricsOverTime": "随时间变化的指标",
   "evaluation.listRuns.status": "状态",
   "evaluation.listRuns.runListHeader": "全部运行",
+  "evaluation.listRuns.allTestCases": "所有测试用例 | 所有测试用例 ({count})",
   "evaluation.listRuns.testCasesListHeader": "运行 #{index}",
   "evaluation.listRuns.runNumber": "运行",
   "evaluation.listRuns.runDate": "运行日期",
