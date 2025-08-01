@@ -536,7 +536,7 @@
 	"codeNodeEditor.askAi.areYouSure": "你确定吗？",
 	"codeNodeEditor.askAi.switchTab": "切换标签",
 	"codeNodeEditor.askAi.noPrompt": "在生成代码之前，首先在上方输入提示",
-	"codeNodeEditor.askAi.onlyAllItemsMode": "Ask AI 生成仅在“一次运行所有项目”模式下有效",
+	"codeNodeEditor.askAi.onlyAllItemsMode": "AI代码生成仅支持「全量项目单次运行」模式",
 	"codeNodeEditor.askAi.promptTooShort": "在尝试生成代码之前，请输入至少 {minLength} 个字符",
 	"codeNodeEditor.askAi.generateCodeAndReplace": "生成并替换代码",
 	"codeNodeEditor.askAi.replaceCurrentCode": "替换当前代码？",
