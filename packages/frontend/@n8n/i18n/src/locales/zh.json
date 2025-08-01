@@ -528,7 +528,7 @@
 	"codeNodeEditor.linter.bothModes.syntaxError": "语法错误",
 	"codeNodeEditor.linter.bothModes.dollarSignVariable": "使用字符串字面量而不是变量，以便n8n可以优化执行",
 	"codeNodeEditor.askAi.placeholder": "告诉AI你希望代码实现什么功能。你可以使用点表示法引用输入数据字段（例如：user.email）",
-	"codeNodeEditor.askAi.intro": "Hey AI, generate JavaScript code that...",
+	"codeNodeEditor.askAi.intro": "AI助手，请生成满足以下要求的JavaScript代码...",
 	"codeNodeEditor.askAi.help": "帮助",
 	"codeNodeEditor.askAi.generateCode": "生成代码",
 	"codeNodeEditor.askAi.noInputData": "当此节点具有传入的输入数据（来自工作流中较早的节点）时，你可以生成代码",
