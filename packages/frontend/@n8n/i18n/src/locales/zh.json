@@ -190,6 +190,7 @@
   "aiAssistant.builder.canvasPrompt.cancelButton": "取消",
   "aiAssistant.builder.canvasPrompt.startManually.title": "手动开始",
   "aiAssistant.builder.canvasPrompt.startManually.subTitle": "添加第一个节点",
+  "aiAssistant.builder.streamAbortedMessage": "[任务已中止]",
   "aiAssistant.assistant": "AI助手",
   "aiAssistant.newSessionModal.title.part1": "开始新的",
   "aiAssistant.newSessionModal.title.part2": "会话",
