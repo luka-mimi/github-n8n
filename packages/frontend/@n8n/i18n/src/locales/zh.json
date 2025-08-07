@@ -3381,5 +3381,15 @@
   "whatsNew.versionsBehind": "{count} 个版本落后 | {count} 个版本落后",
   "whatsNew.update": "更新",
   "whatsNew.updateAvailable": "你当前使用的版本是 {currentVersion}。更新到 {latestVersion} 以获取 {count} 个版本的新功能、改进和修复。查看更新内容",
-  "whatsNew.updateAvailable.changelogLink": "在完整的更新日志中"
+  "whatsNew.updateAvailable.changelogLink": "在完整的更新日志中",
+  "workflowDiff.changes": "更改",
+  "workflowDiff.nodes": "节点",
+  "workflowDiff.connectors": "连接器",
+  "workflowDiff.settings": "设置",
+  "workflowDiff.local": "本地",
+  "workflowDiff.remote": "远程 ({branchName})",
+  "workflowDiff.noChanges": "无更改",
+  "workflowDiff.deletedWorkflow": "已删除工作流",
+  "workflowDiff.deletedWorkflow.database": "工作流已从数据库中删除",
+  "workflowDiff.deletedWorkflow.remote": "工作流已在远程删除"
 }
