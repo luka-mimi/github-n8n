@@ -1161,6 +1161,8 @@
   "ndv.input.noOutputData.hint.tooltip": "从最早的未执行节点，或已执行但此后已更改的节点",
   "ndv.input.noOutputData.schemaPreviewHint": "切换到 {schema} 以使用模式预览",
   "ndv.input.noOutputData.or": "或",
+  "ndv.input.noOutputData.embeddedNdv.link": "执行先前的节点",
+  "ndv.input.noOutputData.embeddedNdv.description": "{link} 来使用他们的数据",
   "ndv.input.executingPrevious": "正在执行之前的节点...",
   "ndv.input.notConnected.title": "接通我",
   "ndv.input.notConnected.v2.title": "未连接输入",
