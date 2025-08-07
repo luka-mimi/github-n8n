@@ -3294,6 +3294,7 @@
   "evaluation.executions.toast.addedTo.title": "已添加到测试执行",
   "evaluation.executions.toast.closeTab": "关闭此标签页",
   "evaluation.executions.toast.removedFrom.title": "从测试中移除执行",
+  "evaluations.readOnlyNotice": "评估无法在只读模式下构建。请在您的开发环境中构建评估。",
   "evaluations.paywall.title": "注册以启用评估",
   "evaluations.paywall.description": "注册你的 Community 实例以解锁评估功能",
   "evaluations.paywall.cta": "注册实例",
