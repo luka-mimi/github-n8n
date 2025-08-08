@@ -2738,6 +2738,8 @@
   "workflows.readyToRunWorkflows.cta": "运行工作流",
   "workflows.readyToRunWorkflows.folder.name": "🚀 即用型工作流",
   "workflows.readyToRunWorkflows.error": "加载 n8n 集合时出错。请稍后再试。",
+  "workflows.archivedOnly.hint": "已归档的工作流在此视图中已隐藏。{link}",
+  "workflows.archivedOnly.hint.link": "更新筛选器",
   "workflowSelectorParameterInput.createNewSubworkflow.name": "我的子工作流",
   "importCurlModal.title": "导入 cURL 命令",
   "importCurlModal.input.label": "cURL 命令",
