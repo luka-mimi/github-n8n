@@ -1398,6 +1398,8 @@
   "nodeCreator.nodeItem.triggerIconTitle": "触发节点",
   "nodeCreator.nodeItem.aiIconTitle": "LangChain AI 节点",
   "nodeCreator.nodeItem.deprecated": "已弃用",
+  "nodeCreator.preBuiltAgents.title": "预构建的代理",
+  "nodeCreator.preBuiltAgents.description": "使用现成的代理，更快地开始",
   "nodeCredentials.createNew": "创建新凭证",
   "nodeCredentials.credentialFor": "{credentialType} 的凭证",
   "nodeCredentials.credentialsLabel": "连接凭证",
