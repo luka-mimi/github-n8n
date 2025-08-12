@@ -2829,7 +2829,6 @@
   "contextual.users.settings.unavailable.button.cloud": "立即升级",
   "contextual.feature.unavailable.title": "仅适用于企业套餐",
   "contextual.feature.unavailable.title.cloud": "适用于专业版",
-  "dataStore.tab.label": "数据存储",
   "dataStore.empty.label": "您还没有任何数据存储",
   "dataStore.empty.description": "一旦为您的项目创建数据存储，它们将出现在这里",
   "dataStore.empty.button.label": "在 \"{projectName}\" 中创建数据存储",
