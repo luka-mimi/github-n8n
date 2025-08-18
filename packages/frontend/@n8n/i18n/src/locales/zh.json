@@ -2851,6 +2851,8 @@
   "dataStore.delete.confirm.message": "您确定要删除数据存储“{name}”吗？此操作无法撤销。",
   "dataStore.delete.error": "删除数据存储时出错",
   "dataStore.rename.error": "重命名数据存储时出错",
+  "dataStore.addColumn.nameInput.label": "@:_reusableBaseText.name",
+  "dataStore.addColumn.typeInput.label": "@:_reusableBaseText.type",
   "settings.ldap": "LDAP",
   "settings.ldap.note": "LDAP 允许用户使用其集中式帐户进行身份验证。它与提供 LDAP 接口的服务兼容，例如 Active Directory、Okta 和 Jumpcloud",
   "settings.ldap.infoTip": "了解更多关于 <a href='https://docs.n8n.io/user-management/ldap/' target='_blank'>文档中的LDAP</a>",
