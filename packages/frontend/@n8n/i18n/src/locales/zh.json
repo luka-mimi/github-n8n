@@ -205,8 +205,6 @@
   "aiAssistant.codeUpdated.message.body2": "查看更改的节点",
   "aiAssistant.thinkingSteps.analyzingError": "正在分析错误...",
   "aiAssistant.thinkingSteps.thinking": "思考中...",
-  "aiAssistant.thinkingSteps.runningTools": "运行工具...",
-  "aiAssistant.thinkingSteps.processingResults": "处理结果...",
   "aiAssistant.prompts.currentView.workflowList": "用户当前正在查看工作流列表",
   "aiAssistant.prompts.currentView.credentialsList": "用户当前正在查看凭证列表",
   "aiAssistant.prompts.currentView.executionsView": "用户当前正在查看当前已打开工作流的执行列表",
