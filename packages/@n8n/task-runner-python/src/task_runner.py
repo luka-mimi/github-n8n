@@ -13,7 +13,7 @@ from src.errors import (
     TaskMissingError,
 )
 from src.message_types.broker import TaskSettings
-from src.nanoid_utils import nanoid
+from src.nanoid import nanoid
 
 from src.constants import (
     RUNNER_NAME,
@@ -129,6 +129,8 @@ class TaskRunner:
         if self.websocket_connection:
             await self.websocket_connection.close()
             self.logger.info("Disconnected from broker")
+
+        self.logger.info("Runner stopped")
 
     # ========== Messages ==========
 
