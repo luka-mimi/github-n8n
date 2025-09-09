@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import ContextMenu from '@/components/ContextMenu/ContextMenu.vue';
-import type { CanvasLayoutEvent, CanvasLayoutSource } from '@/composables/useCanvasLayout';
+import type { CanvasLayoutEvent } from '@/composables/useCanvasLayout';
 import { useCanvasLayout } from '@/composables/useCanvasLayout';
 import { useCanvasNodeHover } from '@/composables/useCanvasNodeHover';
 import { useCanvasTraversal } from '@/composables/useCanvasTraversal';
-import type { ContextMenuAction, ContextMenuTarget } from '@/composables/useContextMenu';
+import type { ContextMenuTarget } from '@/composables/useContextMenu';
 import { useContextMenu } from '@/composables/useContextMenu';
 import { type KeyMap, useKeybindings } from '@/composables/useKeybindings';
 import type { PinDataSource } from '@/composables/usePinnedData';
@@ -56,6 +56,7 @@ import CanvasArrowHeadMarker from './elements/edges/CanvasArrowHeadMarker.vue';
 import Edge from './elements/edges/CanvasEdge.vue';
 import Node from './elements/nodes/CanvasNode.vue';
 import { useExperimentalNdvStore } from './experimental/experimentalNdv.store';
+import { type ContextMenuAction } from '@/composables/useContextMenuItems';
 
 const $style = useCssModule();
 
@@ -102,7 +103,7 @@ const emit = defineEmits<{
 	'save:workflow': [];
 	'create:workflow': [];
 	'drag-and-drop': [position: XYPosition, event: DragEvent];
-	'tidy-up': [CanvasLayoutEvent];
+	'tidy-up': [CanvasLayoutEvent, { trackEvents?: boolean }];
 	'toggle:focus-panel': [];
 	'viewport:change': [viewport: ViewportTransform, dimensions: Dimensions];
 	'selection:end': [position: XYPosition];
@@ -756,7 +757,7 @@ async function onContextMenuAction(action: ContextMenuAction, nodeIds: string[])
 	}
 }
 
-async function onTidyUp(payload: { source: CanvasLayoutSource; nodeIdsFilter?: string[] }) {
+async function onTidyUp(payload: CanvasEventBusEvents['tidyUp']) {
 	if (payload.nodeIdsFilter && payload.nodeIdsFilter.length > 0) {
 		clearSelectedNodes();
 		addSelectedNodes(payload.nodeIdsFilter.map(findNode).filter(isPresent));
@@ -765,7 +766,7 @@ async function onTidyUp(payload: { source: CanvasLayoutSource; nodeIdsFilter?: s
 	const target = applyOnSelection ? 'selection' : 'all';
 	const result = layout(target);
 
-	emit('tidy-up', { result, target, source: payload.source });
+	emit('tidy-up', { result, target, source: payload.source }, { trackEvents: payload.trackEvents });
 
 	if (!applyOnSelection) {
 		await nextTick();
@@ -907,6 +908,10 @@ provide(CanvasKey, {
 	viewport,
 	isExperimentalNdvActive,
 	isPaneMoving,
+});
+
+defineExpose({
+	executeContextMenuAction: onContextMenuAction,
 });
 </script>
 
