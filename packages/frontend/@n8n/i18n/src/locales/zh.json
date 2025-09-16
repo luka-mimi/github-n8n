@@ -19,7 +19,8 @@
     "activate": "激活",
     "user": "用户",
     "enabled": "启用",
-    "disabled": "禁用"
+    "disabled": "禁用",
+    "roles": {}
   },
   "_reusableDynamicText": {
     "readMore": "阅读更多",
@@ -3009,6 +3010,8 @@
   "projects.settings.save.error.title": "保存项目时发生错误",
   "projects.settings.role.upgrade.title": "升级以解锁更多角色",
   "projects.settings.role.upgrade.message": "你目前在 {planName} 计划中被限制为 {limit}，并且只能将管理员角色分配给该项目中的用户。要创建更多项目并解锁其他角色，请升级你的计划",
+  "projects.settings.table.header.user": "@:_reusableBaseText.user",
+  "projects.settings.table.header.role": "@:_reusableBaseText.role",
   "projects.sharing.noMatchingProjects": "没有可用的项目",
   "projects.sharing.noMatchingUsers": "没有匹配的用户或项目",
   "projects.sharing.select.placeholder": "选择项目或用户",
