@@ -1834,6 +1834,7 @@
   "resourceLocator.mode.list.placeholder": "选择...",
   "resourceLocator.mode.list.searchRequired": "输入搜索词以显示结果",
   "resourceLocator.mode.list.addNewResource.vectorStoreInMemory": "创建键 '{resourceName}'",
+  "resourceLocator.dataTable.createNew": "创建新数据表",
   "resourceLocator.modeSelector.placeholder": "模式...",
   "resourceLocator.openSpecificResource": "在 {appName} 中打开 {entity}",
   "resourceLocator.openResource": "在 {appName} 中打开",
