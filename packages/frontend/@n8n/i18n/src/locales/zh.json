@@ -2503,6 +2503,7 @@
   "ndv.search.placeholder.output": "搜索结果",
   "ndv.search.placeholder.input": "搜索选定的节点",
   "ndv.search.placeholder.input.schema": "搜索之前节点的字段",
+  "ndv.search.placeholder.shortcutHint": "搜索({shortcut})",
   "ndv.search.noMatch.title": "没有匹配的项目",
   "ndv.search.noNodeMatch.title": "没有匹配的字段",
   "ndv.search.noMatch.description": "尝试更改或 {link} 过滤器以查看更多",
