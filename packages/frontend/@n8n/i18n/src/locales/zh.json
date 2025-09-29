@@ -3499,6 +3499,7 @@
   "insights.dashboard.table.title": "工作流维度分析",
   "insights.dashboard.table.estimate": "预估量",
   "insights.dashboard.title": "数据分析看板",
+  "insights.dashboard.search.placeholder": "所有项目",
   "insights.dashboard.paywall.title": "升级以访问更详细的数据分析",
   "insights.dashboard.paywall.description": "访问更细粒度的、基于工作流的数据分析，以及不同时间段内生产执行的可视化分解",
   "insights.banner.title.timeSaved.tooltip": "从你在所有工作流中的每次执行的预计时间节省计算得出的总节省时间",
