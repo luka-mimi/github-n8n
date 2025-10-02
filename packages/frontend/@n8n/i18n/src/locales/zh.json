@@ -2954,6 +2954,8 @@
   "dataStore.addColumn.error": "添加列时出错",
   "dataStore.addColumn.alreadyExistsError": "该列已经存在",
   "dataStore.addColumn.alreadyExistsDescription": "列名已存在，请选择不同的名称",
+  "dataStore.addColumn.systemColumnDescription": "这是一个系统列，请选择一个不同的名称",
+  "dataStore.addColumn.testingColumnDescription": "该列用于测试，请选择不同的名称",
   "dataStore.moveColumn.error": "移动列时发生错误",
   "dataStore.deleteColumn.error": "删除列时出错",
   "dataStore.deleteColumn.confirm.title": "删除列",
