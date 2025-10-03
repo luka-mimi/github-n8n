@@ -3162,6 +3162,7 @@
   "projects.settings.save.error.title": "保存项目时发生错误",
   "projects.settings.role.upgrade.title": "升级以解锁更多角色",
   "projects.settings.role.upgrade.message": "你目前在 {planName} 计划中被限制为 {limit}，并且只能将管理员角色分配给该项目中的用户。要创建更多项目并解锁其他角色，请升级你的计划",
+  "projects.settings.role.upgrade.tooltip": "升级到专业版或企业版以分配编辑者和查看者角色",
   "projects.settings.table.header.user": "@:_reusableBaseText.user",
   "projects.settings.table.header.role": "@:_reusableBaseText.role",
   "projects.settings.table.row.removeUser": "移除用户",
