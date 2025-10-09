@@ -4,7 +4,11 @@ import { AIAssistantPage } from './AIAssistantPage';
 import { BecomeCreatorCTAPage } from './BecomeCreatorCTAPage';
 import { CanvasPage } from './CanvasPage';
 import { CommunityNodesPage } from './CommunityNodesPage';
+import { BaseModal } from './components/BaseModal';
+import { Breadcrumbs } from './components/Breadcrumbs';
 import { CredentialsPage } from './CredentialsPage';
+import { DataTableDetails } from './DataTableDetails';
+import { DataTableView } from './DataTableView';
 import { DemoPage } from './DemoPage';
 import { ExecutionsPage } from './ExecutionsPage';
 import { IframePage } from './IframePage';
@@ -17,6 +21,7 @@ import { NpsSurveyPage } from './NpsSurveyPage';
 import { ProjectSettingsPage } from './ProjectSettingsPage';
 import { SettingsLogStreamingPage } from './SettingsLogStreamingPage';
 import { SettingsPersonalPage } from './SettingsPersonalPage';
+import { SettingsUsersPage } from './SettingsUsersPage';
 import { SidebarPage } from './SidebarPage';
 import { SignInPage } from './SignInPage';
 import { TemplateCredentialSetupPage } from './TemplateCredentialSetupPage';
@@ -31,6 +36,8 @@ import { WorkflowSharingModal } from './WorkflowSharingModal';
 import { WorkflowsPage } from './WorkflowsPage';
 import { CanvasComposer } from '../composables/CanvasComposer';
 import { CredentialsComposer } from '../composables/CredentialsComposer';
+import { DataTableComposer } from '../composables/DataTablesComposer';
+import { ExecutionsComposer } from '../composables/ExecutionsComposer';
 import { MfaComposer } from '../composables/MfaComposer';
 import { NodeDetailsViewComposer } from '../composables/NodeDetailsViewComposer';
 import { PartialExecutionComposer } from '../composables/PartialExecutionComposer';
@@ -40,9 +47,6 @@ import { TestEntryComposer } from '../composables/TestEntryComposer';
 import { WorkflowComposer } from '../composables/WorkflowComposer';
 import { NavigationHelper } from '../helpers/NavigationHelper';
 import { ApiHelpers } from '../services/api-helper';
-import { BaseModal } from './components/BaseModal';
-import { Breadcrumbs } from './components/Breadcrumbs';
-import { SettingsUsersPage } from './SettingsUsersPage';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export class n8nPage {
@@ -73,6 +77,9 @@ export class n8nPage {
 	readonly credentials: CredentialsPage;
 	readonly executions: ExecutionsPage;
 	readonly sideBar: SidebarPage;
+	readonly dataTable: DataTableView;
+	readonly dataTableDetails: DataTableDetails;
+
 	readonly signIn: SignInPage;
 	readonly settingsUsers: SettingsUsersPage;
 	// Modals
@@ -88,11 +95,13 @@ export class n8nPage {
 	readonly projectComposer: ProjectComposer;
 	readonly canvasComposer: CanvasComposer;
 	readonly credentialsComposer: CredentialsComposer;
+	readonly executionsComposer: ExecutionsComposer;
 	readonly mfaComposer: MfaComposer;
 	readonly partialExecutionComposer: PartialExecutionComposer;
 	readonly ndvComposer: NodeDetailsViewComposer;
 	readonly templatesComposer: TemplatesComposer;
 	readonly start: TestEntryComposer;
+	readonly dataTableComposer: DataTableComposer;
 
 	// Helpers
 	readonly navigate: NavigationHelper;
@@ -128,6 +137,9 @@ export class n8nPage {
 		this.sideBar = new SidebarPage(page);
 		this.signIn = new SignInPage(page);
 		this.workflowSharingModal = new WorkflowSharingModal(page);
+		this.dataTable = new DataTableView(page);
+		this.dataTableDetails = new DataTableDetails(page);
+
 		this.settingsUsers = new SettingsUsersPage(page);
 		// Modals
 		this.workflowActivationModal = new WorkflowActivationModal(page);
@@ -141,11 +153,13 @@ export class n8nPage {
 		this.projectComposer = new ProjectComposer(this);
 		this.canvasComposer = new CanvasComposer(this);
 		this.credentialsComposer = new CredentialsComposer(this);
+		this.executionsComposer = new ExecutionsComposer(this);
 		this.mfaComposer = new MfaComposer(this);
 		this.partialExecutionComposer = new PartialExecutionComposer(this);
 		this.ndvComposer = new NodeDetailsViewComposer(this);
 		this.templatesComposer = new TemplatesComposer(this);
 		this.start = new TestEntryComposer(this);
+		this.dataTableComposer = new DataTableComposer(this);
 
 		// Helpers
 		this.navigate = new NavigationHelper(page);
