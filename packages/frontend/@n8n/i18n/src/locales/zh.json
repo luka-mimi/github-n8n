@@ -226,6 +226,7 @@
   "aiAssistant.builder.executeMessage.executionSuccess": "工作流执行成功。",
   "aiAssistant.builder.executeMessage.executionFailedOnNode": "工作流执行在节点 \"{nodeName}\" 上失败：{errorMessage}",
   "aiAssistant.builder.executeMessage.executionFailed": "工作流执行失败：{errorMessage}",
+  "aiAssistant.builder.executeMessage.fillParameter": "更新 \"{label}\" 参数",
   "aiAssistant.builder.toast.title": "发送聊天消息以开始执行",
   "aiAssistant.builder.toast.description": "请在聊天面板中发送消息以启动您的工作流执行",
   "aiAssistant.assistant": "AI助手",
