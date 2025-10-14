@@ -1461,6 +1461,7 @@
   "nodeCredentials.selectedCredentialUnavailable": "{name} (不可用)",
   "nodeCredentials.showMessage.message": "已将使用凭证“{oldCredentialName}”的节点更新为使用“{newCredentialName}”",
   "nodeCredentials.showMessage.title": "节点凭证已更新",
+  "nodeCredentials.autoAssigned.message": "已将此凭据添加到其他 {count} 个节点",
   "nodeCredentials.updateCredential": "更新凭证",
   "nodeErrorView.cause": "原因",
   "nodeErrorView.copyToClipboard": "复制到剪贴板",
