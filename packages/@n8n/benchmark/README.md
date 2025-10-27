@@ -1,26 +1,26 @@
-# n8n 基准测试工具
+# n8n benchmarking tool
 
-用于对 n8n 实例执行基准测试的工具。
+Tool for executing benchmarks against an n8n instance.
 
-## 目录结构
+## Directory structure
 
 ```text
 packages/@n8n/benchmark
-├── scenarios        基准测试场景
-├── src              n8n-benchmark CLI 的源代码
-├── Dockerfile       n8n-benchmark CLI 的 Dockerfile
-├── scripts          编排脚本
+├── scenarios        Benchmark scenarios
+├── src              Source code for the n8n-benchmark cli
+├── Dockerfile       Dockerfile for the n8n-benchmark cli
+├── scripts          Orchestration scripts
 ```
 
-## 对现有 n8n 实例进行基准测试
+## Benchmarking an existing n8n instance
 
-运行现有基准测试场景的最简单方法是使用基准测试 Docker 镜像：
+The easiest way to run the existing benchmark scenarios is to use the benchmark docker image:
 
 ```sh
 docker pull ghcr.io/n8n-io/n8n-benchmark:latest
-# 打印帮助以列出所有可用标志
+# Print the help to list all available flags
 docker run ghcr.io/n8n-io/n8n-benchmark:latest run --help
-# 以 5 个并发请求运行所有可用的基准测试场景 1 分钟
+# Run all available benchmark scenarios for 1 minute with 5 concurrent requests
 docker run ghcr.io/n8n-io/n8n-benchmark:latest run \
 	--n8nBaseUrl=https://instance.url \
 	--n8nUserEmail=InstanceOwner@email.com \
@@ -30,12 +30,12 @@ docker run ghcr.io/n8n-io/n8n-benchmark:latest run \
 	--scenarioFilter=single-webhook
 ```
 
-### 使用 Docker 镜像的自定义场景
+### Using custom scenarios with the Docker image
 
-也可以创建您自己的[基准测试场景](#benchmark-scenarios)并使用 `--testScenariosPath` 标志加载它们：
+It is also possible to create your own [benchmark scenarios](#benchmark-scenarios) and load them using the `--testScenariosPath` flag:
 
 ```sh
-# 假设您的场景位于 `./scenarios`，将它们挂载到容器中的 `/scenarios`
+# Assuming your scenarios are located in `./scenarios`, mount them into `/scenarios` in the container
 docker run -v ./scenarios:/scenarios ghcr.io/n8n-io/n8n-benchmark:latest run \
 	--n8nBaseUrl=https://instance.url \
 	--n8nUserEmail=InstanceOwner@email.com \
@@ -45,71 +45,78 @@ docker run -v ./scenarios:/scenarios ghcr.io/n8n-io/n8n-benchmark:latest run \
 	--testScenariosPath=/scenarios
 ```
 
-## 运行整个基准测试套件
+## Running the entire benchmark suite
 
-基准测试套件由[基准测试场景](#benchmark-scenarios)和不同的[n8n 设置](#n8n-setups)组成。
+The benchmark suite consists of [benchmark scenarios](#benchmark-scenarios) and different [n8n setups](#n8n-setups).
 
-### 本地
+### locally
 
 ```sh
 pnpm benchmark-locally
 ```
 
-### 在云中
+You can filter to a specific scenario and setup:
+
+```sh
+# Run only the http-node scenario with the sqlite setup
+pnpm benchmark-locally --runDir /tmp/n8n-data --scenarioFilter http-node sqlite
+```
+
+### In the cloud
 
 ```sh
 pnpm benchmark-in-cloud
 ```
 
-## 运行 `n8n-benchmark` CLI
+## Running the `n8n-benchmark` cli
 
-`n8n-benchmark` CLI 是一个 node.js 程序，可以针对单个 n8n 实例运行一个或多个场景。
+The `n8n-benchmark` cli is a node.js program that runs one or more scenarios against a single n8n instance.
 
-### 使用 Docker 本地运行
+### Locally with Docker
 
-构建 Docker 镜像：
+Build the Docker image:
 
 ```sh
-# 必须在存储库根目录中运行
-# k6 没有可用于 linux 的 arm64 构建，我们需要针对 amd64 构建
+# Must be run in the repository root
+# k6 doesn't have an arm64 build available for linux, we need to build against amd64
 docker build --platform linux/amd64 -t n8n-benchmark -f packages/@n8n/benchmark/Dockerfile .
 ```
 
-运行镜像
+Run the image
 
 ```sh
 docker run \
   -e N8N_USER_EMAIL=user@n8n.io \
   -e N8N_USER_PASSWORD=password \
-  # 对于 macos，n8n 在 docker 外部运行
+  # For macos, n8n running outside docker
   -e N8N_BASE_URL=http://host.docker.internal:5678 \
   n8n-benchmark
 ```
 
-### 不使用 Docker 本地运行
+### Locally without Docker
 
-要求：
+Requirements:
 
 - [k6](https://grafana.com/docs/k6/latest/set-up/install-k6/)
-- Node.js v20 或更高版本
+- Node.js v20 or higher
 
 ```sh
 pnpm build
 
-# 使用指定的电子邮件和密码对 http://localhost:5678 运行测试
+# Run tests against http://localhost:5678 with specified email and password
 N8N_USER_EMAIL=user@n8n.io N8N_USER_PASSWORD=password ./bin/n8n-benchmark run
 ```
 
-## 基准测试场景
+## Benchmark scenarios
 
-基准测试场景定义了一个或多个要执行和测量的步骤。它由以下部分组成：
+A benchmark scenario defines one or multiple steps to execute and measure. It consists of:
 
-- 描述和配置场景的清单文件
-- 在运行场景之前导入的任何测试数据
-- 一个在运行时接收 `API_BASE_URL` 环境变量的 [`k6`](https://grafana.com/docs/k6/latest/using-k6/http-requests/) 脚本。
+- Manifest file which describes and configures the scenario
+- Any test data that is imported before the scenario is run
+- A [`k6`](https://grafana.com/docs/k6/latest/using-k6/http-requests/) script which executes the steps and receives `API_BASE_URL` environment variable in runtime.
 
-可用场景位于 [`./scenarios`](./scenarios/)。
+Available scenarios are located in [`./scenarios`](./scenarios/).
 
-## n8n 设置
+## n8n setups
 
-n8n 设置定义了使用 Docker compose 的单个 n8n 运行时配置。不同的 n8n 设置位于 [`./scripts/n8nSetups`](./scripts/n8nSetups)。
+A n8n setup defines a single n8n runtime configuration using Docker compose. Different n8n setups are located in [`./scripts/n8nSetups`](./scripts/n8nSetups).
