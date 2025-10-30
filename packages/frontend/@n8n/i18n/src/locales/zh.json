@@ -3044,6 +3044,7 @@
   "variables.add.unavailable": "升级计划以继续使用变量",
   "variables.add.unavailable.empty": "升级计划以开始使用变量",
   "variables.add.onlyOwnerCanCreate": "只有所有者才能创建变量",
+  "variables.add.button.label": "创建变量",
   "variables.empty.heading": "{name}, 让我们设置一个变量",
   "variables.empty.heading.userNotSetup": "设置一个变量",
   "variables.empty.description": "变量用于存储可复用的数据，便于在多个工作流中进行统一引用",
