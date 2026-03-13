@@ -1,11 +1,16 @@
+import type { INodeListSearchResult } from 'n8n-workflow';
 import { createComponentRenderer } from '@/__tests__/render';
 import { useNodeTypesStore } from '@/app/stores/nodeTypes.store';
 import { useProjectsStore } from '@/features/collaboration/projects/projects.store';
+import { ExpressionLocalResolveContextSymbol } from '@/app/constants';
+import { useWorkflowHelpers } from '@/app/composables/useWorkflowHelpers';
 import ResourceLocator from './ResourceLocator.vue';
 import { createTestingPinia } from '@pinia/testing';
 import userEvent from '@testing-library/user-event';
-import { screen, waitFor } from '@testing-library/vue';
+import { fireEvent, screen, waitFor } from '@testing-library/vue';
+import { computed } from 'vue';
 import { mockedStore } from '@/__tests__/utils';
+import { vi } from 'vitest';
 import {
 	TEST_MODEL_VALUE,
 	TEST_NODE_MULTI_MODE,
@@ -130,8 +135,9 @@ describe('ResourceLocator', () => {
 		const { getByTestId, getByText, getAllByTestId } = renderComponent();
 
 		expect(getByTestId(`resource-locator-${TEST_PARAMETER_MULTI_MODE.name}`)).toBeInTheDocument();
-		// Click on the input to fetch resources
-		await userEvent.click(getByTestId('rlc-input'));
+		// Focus on the input to fetch resources (the dropdown opens on focus)
+		const input = getByTestId('rlc-input');
+		await fireEvent.focus(input);
 		// Wait for the resources to be fetched
 		await waitFor(() => {
 			expect(nodeTypesStore.getResourceLocatorResults).toHaveBeenCalled();
@@ -243,7 +249,8 @@ describe('ResourceLocator', () => {
 
 		expect(getByTestId(`resource-locator-${TEST_PARAMETER_MULTI_MODE.name}`)).toBeInTheDocument();
 
-		await userEvent.click(getByTestId('rlc-input'));
+		const input = getByTestId('rlc-input');
+		await fireEvent.focus(input);
 
 		expect(getByTestId('rlc-error-container')).toBeInTheDocument();
 		expect(getByTestId('permission-error-link')).toBeInTheDocument();
@@ -289,7 +296,8 @@ describe('ResourceLocator', () => {
 			getByTestId(`resource-locator-${TEST_PARAMETER_SKIP_CREDENTIALS_CHECK.name}`),
 		).toBeInTheDocument();
 
-		await userEvent.click(getByTestId('rlc-input'));
+		const input = getByTestId('rlc-input');
+		await fireEvent.focus(input);
 
 		await waitFor(() => {
 			expect(nodeTypesStore.getResourceLocatorResults).toHaveBeenCalled();
@@ -360,7 +368,8 @@ describe('ResourceLocator', () => {
 
 			expect(getByTestId(`resource-locator-${TEST_PARAMETER_MULTI_MODE.name}`)).toBeInTheDocument();
 
-			await userEvent.click(getByTestId('rlc-input'));
+			const input = getByTestId('rlc-input');
+			await fireEvent.focus(input);
 			await waitFor(() => {
 				expect(nodeTypesStore.getResourceLocatorResults).toHaveBeenCalled();
 			});
@@ -386,7 +395,8 @@ describe('ResourceLocator', () => {
 
 			expect(getByTestId(`resource-locator-${TEST_PARAMETER_MULTI_MODE.name}`)).toBeInTheDocument();
 
-			await userEvent.click(getByTestId('rlc-input'));
+			const input = getByTestId('rlc-input');
+			await fireEvent.focus(input);
 
 			await waitFor(() => {
 				expect(nodeTypesStore.getResourceLocatorResults).toHaveBeenCalled();
@@ -470,5 +480,289 @@ describe('ResourceLocator', () => {
 		);
 
 		expect(nodeTypesStore.getNodeParameterActionResult).not.toHaveBeenCalled();
+	});
+
+	describe('slow load notice', () => {
+		it('should pass slowLoadNotice configuration to dropdown component', async () => {
+			vi.useFakeTimers();
+			const SLOW_LOAD_PARAMETER = {
+				...TEST_PARAMETER_SINGLE_MODE,
+				modes: [
+					{
+						displayName: 'From List',
+						name: 'list',
+						type: 'list' as const,
+						typeOptions: {
+							searchListMethod: 'getItems',
+							slowLoadNotice: {
+								message: 'This is taking longer than expected',
+								timeout: 500,
+							},
+						},
+					},
+				],
+			};
+
+			// Use a slow response to keep loading state
+			let resolvePromise: ((value: INodeListSearchResult) => void) | undefined;
+			nodeTypesStore.getResourceLocatorResults.mockReturnValue(
+				new Promise((resolve) => {
+					resolvePromise = resolve;
+				}),
+			);
+
+			const { getByTestId, queryByText } = renderComponent({
+				props: {
+					modelValue: TEST_MODEL_VALUE,
+					parameter: SLOW_LOAD_PARAMETER,
+					path: `parameters.${SLOW_LOAD_PARAMETER.name}`,
+					node: TEST_NODE_SINGLE_MODE,
+					displayTitle: 'Test Resource Locator',
+					expressionComputedValue: '',
+				},
+			});
+
+			// Focus to open dropdown - Focus triggers onInputFocus -> showResourceDropdown
+			// Use fireEvent instead of userEvent because userEvent doesn't work with fake timers
+			await fireEvent.focus(getByTestId('rlc-input'));
+			await vi.advanceTimersByTimeAsync(100);
+
+			// Advance time past the slowLoadNotice timeout (500ms)
+			await vi.advanceTimersByTimeAsync(600);
+
+			expect(queryByText('This is taking longer than expected')).toBeInTheDocument();
+
+			if (resolvePromise) {
+				resolvePromise({ results: [], paginationToken: null });
+			}
+			vi.useRealTimers();
+		}, 10000);
+
+		it('should not show notice when dropdown is not visible', async () => {
+			vi.useFakeTimers();
+			const SLOW_LOAD_PARAMETER = {
+				...TEST_PARAMETER_SINGLE_MODE,
+				modes: [
+					{
+						displayName: 'From List',
+						name: 'list',
+						type: 'list' as const,
+						typeOptions: {
+							searchListMethod: 'getItems',
+							slowLoadNotice: {
+								message: 'This is taking longer than expected',
+								timeout: 100,
+							},
+						},
+					},
+				],
+			};
+
+			nodeTypesStore.getResourceLocatorResults.mockResolvedValue({
+				results: [],
+				paginationToken: null,
+			});
+
+			const { queryByText } = renderComponent({
+				props: {
+					modelValue: TEST_MODEL_VALUE,
+					parameter: SLOW_LOAD_PARAMETER,
+					path: `parameters.${SLOW_LOAD_PARAMETER.name}`,
+					node: TEST_NODE_SINGLE_MODE,
+					displayTitle: 'Test Resource Locator',
+					expressionComputedValue: '',
+				},
+			});
+
+			await vi.advanceTimersByTimeAsync(200);
+			expect(queryByText('This is taking longer than expected')).not.toBeInTheDocument();
+			vi.useRealTimers();
+		});
+
+		it('should hide notice when loading completes', async () => {
+			vi.useFakeTimers();
+			const SLOW_LOAD_PARAMETER = {
+				...TEST_PARAMETER_SINGLE_MODE,
+				modes: [
+					{
+						displayName: 'From List',
+						name: 'list',
+						type: 'list' as const,
+						typeOptions: {
+							searchListMethod: 'getItems',
+							slowLoadNotice: {
+								message: 'This is taking longer than expected',
+								timeout: 100,
+							},
+						},
+					},
+				],
+			};
+
+			nodeTypesStore.getResourceLocatorResults.mockResolvedValue({
+				results: [{ name: 'Test Item', value: 'test-item' }],
+				paginationToken: null,
+			});
+
+			const { getByTestId, queryByText } = renderComponent({
+				props: {
+					modelValue: TEST_MODEL_VALUE,
+					parameter: SLOW_LOAD_PARAMETER,
+					path: `parameters.${SLOW_LOAD_PARAMETER.name}`,
+					node: TEST_NODE_SINGLE_MODE,
+					displayTitle: 'Test Resource Locator',
+					expressionComputedValue: '',
+				},
+			});
+
+			// Focus to open dropdown
+			// Use fireEvent instead of userEvent because userEvent doesn't work with fake timers
+			await fireEvent.focus(getByTestId('rlc-input'));
+
+			// Allow time for loading to complete - the mock resolves immediately
+			await vi.advanceTimersByTimeAsync(200);
+
+			// Since the mock resolves immediately, the loading should be complete
+			// and the slow load notice should not be shown (timeout is 100ms, but loading finishes faster)
+			expect(queryByText('This is taking longer than expected')).not.toBeInTheDocument();
+			vi.useRealTimers();
+		});
+
+		it('should not show notice when slowLoadNotice is not configured', async () => {
+			vi.useFakeTimers();
+			let resolvePromise: ((value: INodeListSearchResult) => void) | undefined;
+			nodeTypesStore.getResourceLocatorResults.mockReturnValue(
+				new Promise((resolve) => {
+					resolvePromise = resolve;
+				}),
+			);
+
+			const { getByTestId } = renderComponent({
+				props: {
+					modelValue: TEST_MODEL_VALUE,
+					parameter: TEST_PARAMETER_SINGLE_MODE,
+					path: `parameters.${TEST_PARAMETER_SINGLE_MODE.name}`,
+					node: TEST_NODE_SINGLE_MODE,
+					displayTitle: 'Test Resource Locator',
+					expressionComputedValue: '',
+				},
+			});
+
+			// Focus to open dropdown
+			// Use fireEvent instead of userEvent because userEvent doesn't work with fake timers
+			await fireEvent.focus(getByTestId('rlc-input'));
+
+			await vi.advanceTimersByTimeAsync(500);
+
+			const noticeContainer = document.querySelector('[class*="slowLoadNoticeContainer"]');
+			expect(noticeContainer).not.toBeInTheDocument();
+
+			if (resolvePromise) {
+				resolvePromise({ results: [], paginationToken: null });
+			}
+			vi.useRealTimers();
+		});
+	});
+
+	describe('ExpressionLocalResolveContext injection', () => {
+		const mockResolveExpression = vi.fn().mockImplementation((val) => val);
+		const mockResolveRequiredParameters = vi.fn().mockImplementation((_, params) => params);
+
+		beforeEach(() => {
+			vi.mocked(useWorkflowHelpers).mockReturnValue({
+				resolveExpression: mockResolveExpression,
+				resolveRequiredParameters: mockResolveRequiredParameters,
+			} as unknown as ReturnType<typeof useWorkflowHelpers>);
+		});
+
+		afterEach(() => {
+			mockResolveExpression.mockClear();
+			mockResolveRequiredParameters.mockClear();
+		});
+
+		it('passes injected context to resolveRequiredParameters when loading resources', async () => {
+			const testContext = { localResolve: true, nodeName: 'TestTool' };
+
+			nodeTypesStore.getResourceLocatorResults.mockResolvedValue({
+				results: [],
+				paginationToken: null,
+			});
+
+			const { getByTestId } = renderComponent({
+				global: {
+					provide: {
+						[ExpressionLocalResolveContextSymbol as symbol]: computed(() => testContext),
+					},
+				},
+			});
+
+			const input = getByTestId('rlc-input');
+			await fireEvent.focus(input);
+
+			await waitFor(() => {
+				expect(mockResolveRequiredParameters).toHaveBeenCalledWith(
+					expect.anything(),
+					expect.anything(),
+					testContext,
+				);
+			});
+		});
+
+		it('passes empty object when no context is injected', async () => {
+			nodeTypesStore.getResourceLocatorResults.mockResolvedValue({
+				results: [],
+				paginationToken: null,
+			});
+
+			const { getByTestId } = renderComponent();
+
+			const input = getByTestId('rlc-input');
+			await fireEvent.focus(input);
+
+			await waitFor(() => {
+				expect(mockResolveRequiredParameters).toHaveBeenCalledWith(
+					expect.anything(),
+					expect.anything(),
+					{},
+				);
+			});
+		});
+
+		it('passes injected context to resolveRequiredParameters when adding a resource', async () => {
+			const testContext = { localResolve: true, nodeName: 'TestTool' };
+
+			nodeTypesStore.getResourceLocatorResults.mockResolvedValue({
+				results: [],
+				paginationToken: null,
+			});
+			nodeTypesStore.getNodeParameterActionResult.mockResolvedValue('new-resource');
+
+			const { getByTestId } = renderComponent({
+				props: {
+					modelValue: TEST_MODEL_VALUE,
+					parameter: TEST_PARAMETER_ADD_RESOURCE,
+					path: `parameters.${TEST_PARAMETER_ADD_RESOURCE.name}`,
+					node: TEST_NODE_SINGLE_MODE,
+					displayTitle: 'Test Resource Locator',
+					expressionComputedValue: '',
+				},
+				global: {
+					provide: {
+						[ExpressionLocalResolveContextSymbol as symbol]: computed(() => testContext),
+					},
+				},
+			});
+
+			await userEvent.click(getByTestId('rlc-input'));
+			await userEvent.click(getByTestId('rlc-item-add-resource'));
+
+			await waitFor(() => {
+				expect(mockResolveRequiredParameters).toHaveBeenCalledWith(
+					expect.anything(),
+					expect.anything(),
+					testContext,
+				);
+			});
+		});
 	});
 });

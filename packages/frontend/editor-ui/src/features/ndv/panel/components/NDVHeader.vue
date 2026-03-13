@@ -31,8 +31,15 @@ function onRename(newNodeName: string) {
 <template>
 	<header :class="$style.ndvHeader">
 		<div :class="$style.content">
-			<NodeIcon v-if="icon" :class="$style.icon" :size="20" :icon-source="icon" />
-			<div :class="$style.title">
+			<NodeIcon
+				v-if="icon"
+				:class="$style.icon"
+				:size="20"
+				:icon-source="icon"
+				:node-name="props.nodeTypeName"
+				:show-tooltip="true"
+			/>
+			<div :class="$style.title" data-test-id="node-title-container">
 				<N8nInlineTextEdit
 					:model-value="nodeName"
 					:min-width="0"
@@ -58,9 +65,8 @@ function onRename(newNodeName: string) {
 					{{ i18n.baseText('ndv.close.tooltip') }}
 				</template>
 				<N8nIconButton
+					variant="ghost"
 					icon="x"
-					type="tertiary"
-					text
 					data-test-id="ndv-close-button"
 					@click="emit('close')"
 				/>

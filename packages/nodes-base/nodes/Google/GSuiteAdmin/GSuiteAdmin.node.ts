@@ -24,6 +24,7 @@ export class GSuiteAdmin implements INodeType {
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description: 'Consume Google Workspace Admin API',
+		schemaPath: 'Google/GSuiteAdmin',
 		defaults: {
 			name: 'Google Workspace Admin',
 		},
@@ -469,6 +470,11 @@ export class GSuiteAdmin implements INodeType {
 							});
 						}
 
+						if (additionalFields.changePasswordAtNextLogin !== undefined) {
+							body.changePasswordAtNextLogin =
+								additionalFields.changePasswordAtNextLogin as boolean;
+						}
+
 						if (additionalFields.phoneUi) {
 							body.phones = (additionalFields.phoneUi as IDataObject).phoneValues as IDataObject[];
 						}
@@ -721,7 +727,17 @@ export class GSuiteAdmin implements INodeType {
 							suspended?: boolean;
 							roles?: { [key: string]: boolean };
 							customSchemas?: IDataObject;
+							password?: string;
+							changePasswordAtNextLogin?: boolean;
 						} = {};
+
+						if (updateFields.password) {
+							body.password = updateFields.password as string;
+						}
+
+						if (updateFields.changePasswordAtNextLogin !== undefined) {
+							body.changePasswordAtNextLogin = updateFields.changePasswordAtNextLogin as boolean;
+						}
 
 						if (updateFields.firstName) {
 							body.name ??= {};

@@ -14,7 +14,7 @@ import { getResourcePermissions } from '@n8n/permissions';
 import { useCredentialsStore } from '@/features/credentials/credentials.store';
 import { useProjectsStore } from '../projects.store';
 import { useUIStore } from '@/app/stores/ui.store';
-import { useWorkflowsStore } from '@/app/stores/workflows.store';
+import { useWorkflowsListStore } from '@/app/stores/workflowsList.store';
 import { ProjectTypes } from '../projects.types';
 import {
 	getTruncatedProjectName,
@@ -28,9 +28,11 @@ import { sortByProperty } from '@n8n/utils/sort/sortByProperty';
 import { truncate } from '@n8n/utils/string/truncate';
 import { computed, h, onMounted, ref } from 'vue';
 import { I18nT } from 'vue-i18n';
+import { useRouter } from 'vue-router';
 
 import {
 	N8nButton,
+	N8nCallout,
 	N8nCheckbox,
 	N8nHeading,
 	N8nIcon,
@@ -43,7 +45,7 @@ const props = defineProps<{
 	modalName: string;
 	data: {
 		resource: IWorkflowDb | ICredentialsResponse;
-		resourceType: ResourceType;
+		resourceType: Exclude<ResourceType, 'dataTable'>;
 		resourceTypeLabel: string;
 		eventBus?: EventBus;
 	};
@@ -52,8 +54,9 @@ const props = defineProps<{
 const i18n = useI18n();
 const uiStore = useUIStore();
 const toast = useToast();
+const router = useRouter();
 const projectsStore = useProjectsStore();
-const workflowsStore = useWorkflowsStore();
+const workflowsListStore = useWorkflowsListStore();
 const credentialsStore = useCredentialsStore();
 const telemetry = useTelemetry();
 
@@ -62,6 +65,7 @@ const projectId = ref<string | null>(null);
 const shareUsedCredentials = ref(false);
 const usedCredentials = ref<IUsedCredential[]>([]);
 const allCredentials = ref<ICredentialsResponse[]>([]);
+const loading = ref(false);
 const shareableCredentials = computed(() =>
 	allCredentials.value.filter(
 		(credential) =>
@@ -111,6 +115,14 @@ const targetProjectName = computed(() => {
 	return getTruncatedProjectName(selectedProject.value?.name);
 });
 const resourceName = computed(() => truncate(props.data.resource.name, MAX_NAME_LENGTH));
+const isPersonalSpaceRestricted = computed(
+	() =>
+		props.data.resource.homeProject?.type === ProjectTypes.Personal &&
+		props.data.resource.homeProject?.id === projectsStore.personalProject?.id,
+);
+const isTargetPersonalProject = computed(
+	() => projectId.value === projectsStore.personalProject?.id,
+);
 
 const isHomeProjectTeam = (resource: IWorkflowDb | ICredentialsResponse) =>
 	resource.homeProject?.type === ProjectTypes.Team;
@@ -133,7 +145,9 @@ const setFilter = (query: string) => {
 };
 
 const moveResource = async () => {
-	if (!selectedProject.value) return;
+	if (!selectedProject.value || loading.value) return;
+
+	loading.value = true;
 	try {
 		await projectsStore.moveResourceToProject(
 			props.data.resourceType,
@@ -163,6 +177,15 @@ const moveResource = async () => {
 				areAllUsedCredentialsShareable:
 					shareableCredentials.value.length === usedCredentials.value.length,
 			}),
+			onClick: (event: MouseEvent | undefined) => {
+				if (event?.target instanceof HTMLAnchorElement && selectedProject.value) {
+					event.preventDefault();
+					void router.push({
+						name: isResourceWorkflow.value ? VIEWS.PROJECTS_WORKFLOWS : VIEWS.PROJECTS_CREDENTIALS,
+						params: { projectId: selectedProject.value.id },
+					});
+				}
+			},
 			type: 'success',
 			duration: 8000,
 		});
@@ -175,7 +198,7 @@ const moveResource = async () => {
 		}
 	} catch (error) {
 		toast.showError(
-			error.message,
+			error,
 			i18n.baseText('projects.move.resource.error.title', {
 				interpolate: {
 					resourceTypeLabel: props.data.resourceTypeLabel,
@@ -183,6 +206,8 @@ const moveResource = async () => {
 				},
 			}),
 		);
+	} finally {
+		loading.value = false;
 	}
 };
 
@@ -196,7 +221,7 @@ onMounted(async () => {
 
 	if (isResourceWorkflow.value) {
 		const [workflow, credentials] = await Promise.all([
-			workflowsStore.fetchWorkflow(props.data.resource.id),
+			workflowsListStore.fetchWorkflow(props.data.resource.id),
 			credentialsStore.fetchAllCredentials(),
 		]);
 
@@ -281,41 +306,60 @@ onMounted(async () => {
 						}}</span
 					>
 					<N8nCheckbox
-						v-if="shareableCredentials.length"
+						v-if="shareableCredentials.length && !isTargetPersonalProject"
 						v-model="shareUsedCredentials"
 						:class="$style.textBlock"
 						data-test-id="project-move-resource-modal-checkbox-all"
 					>
-						<I18nT keypath="projects.move.resource.modal.message.usedCredentials" scope="global">
-							<template #usedCredentials>
-								<N8nTooltip placement="top">
-									<span :class="$style.tooltipText">
-										{{
-											i18n.baseText('projects.move.resource.modal.message.usedCredentials.number', {
-												adjustToNumber: shareableCredentials.length,
-												interpolate: { count: shareableCredentials.length },
-											})
-										}}
-									</span>
-									<template #content>
-										<ProjectMoveResourceModalCredentialsList
-											:current-project-id="projectsStore.currentProjectId"
-											:credentials="shareableCredentials"
-										/>
-									</template>
-								</N8nTooltip>
-							</template>
-						</I18nT>
+						<template #label>
+							<I18nT keypath="projects.move.resource.modal.message.usedCredentials" scope="global">
+								<template #usedCredentials>
+									<N8nTooltip placement="top">
+										<span :class="$style.tooltipText">
+											{{
+												i18n.baseText(
+													'projects.move.resource.modal.message.usedCredentials.number',
+													{
+														adjustToNumber: shareableCredentials.length,
+														interpolate: { count: shareableCredentials.length },
+													},
+												)
+											}}
+										</span>
+										<template #content>
+											<ProjectMoveResourceModalCredentialsList
+												:current-project-id="projectsStore.currentProjectId"
+												:credentials="shareableCredentials"
+											/>
+										</template>
+									</N8nTooltip>
+								</template>
+							</I18nT>
+						</template>
 					</N8nCheckbox>
-					<span v-if="unShareableCredentials.length" :class="$style.textBlock">
+					<N8nCallout
+						v-if="unShareableCredentials.length && !isTargetPersonalProject"
+						theme="warning"
+						:class="$style.textBlock"
+					>
 						<I18nT
-							keypath="projects.move.resource.modal.message.unAccessibleCredentials.note"
+							:keypath="
+								isPersonalSpaceRestricted
+									? 'projects.move.resource.modal.message.unAccessibleCredentials.personalSpaceNote'
+									: 'projects.move.resource.modal.message.unAccessibleCredentials.note'
+							"
 							scope="global"
 						>
 							<template #credentials>
 								<N8nTooltip placement="top">
 									<span :class="$style.tooltipText">{{
-										i18n.baseText('projects.move.resource.modal.message.unAccessibleCredentials')
+										i18n.baseText(
+											'projects.move.resource.modal.message.unAccessibleCredentials.count',
+											{
+												adjustToNumber: unShareableCredentials.length,
+												interpolate: { count: unShareableCredentials.length },
+											},
+										)
 									}}</span>
 									<template #content>
 										<ProjectMoveResourceModalCredentialsList
@@ -326,7 +370,7 @@ onMounted(async () => {
 								</N8nTooltip>
 							</template>
 						</I18nT>
-					</span>
+					</N8nCallout>
 				</N8nText>
 			</div>
 			<N8nText v-else>{{
@@ -337,12 +381,13 @@ onMounted(async () => {
 		</template>
 		<template #footer>
 			<div :class="$style.buttons">
-				<N8nButton type="secondary" text class="mr-2xs" @click="closeModal">
+				<N8nButton variant="ghost" class="mr-2xs" :disabled="loading" @click="closeModal">
 					{{ i18n.baseText('generic.cancel') }}
 				</N8nButton>
 				<N8nButton
-					:disabled="!projectId"
-					type="primary"
+					variant="solid"
+					:loading="loading"
+					:disabled="!projectId || loading"
 					data-test-id="project-move-resource-modal-button"
 					@click="moveResource"
 				>
@@ -364,7 +409,6 @@ onMounted(async () => {
 }
 
 .textBlock {
-	display: block;
 	margin-top: var(--spacing--sm);
 }
 

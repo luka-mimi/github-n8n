@@ -4,14 +4,6 @@ import { AddResource } from './components/AddResource';
 export class DataTableView extends BasePage {
 	readonly addResource = new AddResource(this.page);
 
-	getDataTableOverviewTab() {
-		return this.page.getByTestId('tab-data-tables');
-	}
-
-	getDataTableProjectTab() {
-		return this.page.getByTestId('tab-project-data-tables');
-	}
-
 	getEmptyStateActionBox() {
 		return this.page.getByTestId('empty-data-table-action-box');
 	}
@@ -25,11 +17,15 @@ export class DataTableView extends BasePage {
 	}
 
 	getNewDataTableNameInput() {
-		return this.page.getByTestId('data-table-name-input');
+		return this.page.getByTestId('data-table-name-input-select');
 	}
 
-	getNewDataTableConfirmButton() {
-		return this.page.getByTestId('confirm-add-data-table-button');
+	getFromScratchOption() {
+		return this.page.getByTestId('create-from-scratch-option');
+	}
+
+	getProceedFromSelectButton() {
+		return this.page.getByTestId('proceed-from-select-button');
 	}
 
 	getDataTableCards() {
@@ -68,10 +64,6 @@ export class DataTableView extends BasePage {
 		return this.page.getByTestId('resources-list-pagination').locator('button.btn-next');
 	}
 
-	async clickDataTableOverviewTab() {
-		await this.clickByTestId('tab-data-tables');
-	}
-
 	async clickDataTableProjectTab() {
 		await this.clickByTestId('tab-project-data-tables');
 	}
@@ -88,10 +80,6 @@ export class DataTableView extends BasePage {
 		await this.getDataTableCardActionsButton(dataTableName).click();
 	}
 
-	async clickDataTableCardAction(actionName: string) {
-		await this.getDataTableCardAction(actionName).click();
-	}
-
 	async clickDeleteDataTableConfirmButton() {
 		await this.getDeleteDataTableConfirmButton().click();
 	}
@@ -99,9 +87,5 @@ export class DataTableView extends BasePage {
 	async selectDataTablePageSize(pageSize: string) {
 		await this.getDataTablePageSizeSelect().click();
 		await this.getDataTablePageOption(pageSize).click();
-	}
-
-	async clickPaginationNextButton() {
-		await this.getPaginationNextButton().click();
 	}
 }

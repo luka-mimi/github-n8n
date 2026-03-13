@@ -42,8 +42,13 @@ import { useWorkflowsStore } from '@/app/stores/workflows.store';
 import { useNodeTypesStore } from '@/app/stores/nodeTypes.store';
 import { useExternalHooks } from '@/app/composables/useExternalHooks';
 
-import { sortNodeCreateElements, transformNodeType } from '../nodeCreator.utils';
+import {
+	removePreviewToken,
+	sortNodeCreateElements,
+	transformNodeType,
+} from '../nodeCreator.utils';
 import { useI18n } from '@n8n/i18n';
+import { PUSH_NODES_OFFSET } from '@/app/utils/nodeViewUtils';
 import { useCanvasStore } from '@/app/stores/canvas.store';
 import { injectWorkflowState } from '@/app/composables/useWorkflowState';
 
@@ -214,7 +219,7 @@ export const useActions = () => {
 		actionData: NodeCreateElement,
 	): NodeTypeSelectedPayload {
 		const result: NodeTypeSelectedPayload = {
-			type: actionData.key,
+			type: removePreviewToken(actionData.key),
 		};
 
 		if (typeof actionData.resource === 'string' || typeof actionData.operation === 'string') {
@@ -346,6 +351,8 @@ export const useActions = () => {
 					nodes.push({
 						type: NO_OP_NODE_TYPE,
 						isAutoAdd: true,
+						placeholder: true,
+						positionOffset: [0, PUSH_NODES_OFFSET],
 						name: i18n.baseText('nodeView.replaceMe'),
 					});
 					connections.push(

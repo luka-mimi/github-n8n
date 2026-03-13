@@ -86,4 +86,38 @@ export class ExecutionsPage extends BasePage {
 		await this.page.getByTestId('execution-preview-delete-button').click();
 		await this.page.locator('button.btn--confirm').click();
 	}
+
+	// Filter methods
+	getFilterButton(): Locator {
+		return this.page.getByTestId('executions-filter-button');
+	}
+
+	getFilterForm(): Locator {
+		return this.page.getByTestId('execution-filter-form');
+	}
+
+	getStatusSelect(): Locator {
+		return this.page.getByTestId('executions-filter-status-select');
+	}
+
+	async openFilter(): Promise<void> {
+		await this.getFilterButton().click();
+	}
+
+	getFilterBadge(): Locator {
+		return this.page.getByTestId('execution-filter-badge');
+	}
+
+	getFilterResetButton(): Locator {
+		return this.page.getByTestId('executions-filter-reset-button');
+	}
+
+	async resetFilter(): Promise<void> {
+		await this.getFilterResetButton().click();
+	}
+
+	async selectFilterStatus(status: string): Promise<void> {
+		await this.getStatusSelect().getByRole('combobox').click();
+		await this.page.getByRole('option', { name: status }).click();
+	}
 }

@@ -1,3 +1,4 @@
+export { Z, type ZodClass } from './zod-class';
 export type * from './datetime';
 export * from './dto';
 export type * from './push';
@@ -6,9 +7,12 @@ export type * from './frontend-settings';
 export type * from './user';
 export type * from './api-keys';
 export type * from './community-node-types';
+export type * from './quick-connect';
+export * from './instance-registry-types';
 export {
 	chatHubConversationModelSchema,
 	type ChatModelDto,
+	type ChatModelMetadataDto,
 	type ChatHubOpenAIModel,
 	type ChatHubAnthropicModel,
 	type ChatHubGoogleModel,
@@ -16,6 +20,7 @@ export {
 	type ChatHubN8nModel,
 	type ChatHubCustomAgentModel,
 	type ChatHubConversationModel,
+	type ChatHubModuleSettings,
 	chatHubProviderSchema,
 	chatHubLLMProviderSchema,
 	type ChatHubProvider,
@@ -27,10 +32,13 @@ export {
 	emptyChatModelsResponse,
 	type ChatModelsRequest,
 	type ChatModelsResponse,
+	chatAttachmentSchema,
+	type ChatAttachment,
 	ChatHubSendMessageRequest,
 	ChatHubRegenerateMessageRequest,
 	ChatHubEditMessageRequest,
 	ChatHubUpdateConversationRequest,
+	ChatHubConversationsRequest,
 	type ChatMessageId,
 	type ChatSessionId,
 	type ChatHubMessageDto,
@@ -39,10 +47,52 @@ export {
 	type ChatHubConversationResponse,
 	type ChatHubConversationsResponse,
 	type ChatHubAgentDto,
+	type ChatHubAgentKnowledgeItem,
 	ChatHubCreateAgentRequest,
 	ChatHubUpdateAgentRequest,
-	type EnrichedStructuredChunk,
+	type AgentIconOrEmoji,
+	agentIconOrEmojiSchema,
+	type SuggestedPrompt,
+	suggestedPromptsSchema,
+	type MessageChunk,
+	UpdateChatSettingsRequest,
+	ChatHubSemanticSearchSettings,
+	type ChatProviderSettingsDto,
+	type ChatSendMessageResponse,
+	type ChatReconnectResponse,
+	ChatReconnectRequest,
+	type ChatArtifact,
+	type ChatArtifactCreateCommand,
+	type ChatArtifactEditCommand,
+	type ChatMessageContentChunk,
+	type ChatHubMessageButton,
+	chatHubMessageWithButtonsSchema,
+	type ChatHubMessageWithButtons,
+	type ChatHubToolDto,
+	ChatHubCreateToolRequest,
+	ChatHubUpdateToolRequest,
+	ALWAYS_BLOCKED_CHAT_HUB_TOOL_TYPES,
+	CHAT_USER_BLOCKED_CHAT_HUB_TOOL_TYPES,
+	chatHubVectorStoreProviderSchema,
+	type ChatHubVectorStoreProvider,
+	VECTOR_STORE_PROVIDER_CREDENTIAL_TYPE_MAP,
 } from './chat-hub';
+
+export type {
+	ChatHubPushMessage,
+	ChatHubStreamEvent,
+	ChatHubStreamBegin,
+	ChatHubStreamChunk,
+	ChatHubStreamEnd,
+	ChatHubStreamError,
+	ChatHubStreamMetadata,
+	ChatHubExecutionEvent,
+	ChatHubExecutionBegin,
+	ChatHubExecutionEnd,
+	ChatHubHumanMessageCreated,
+	ChatHubMessageEdited,
+	ChatHubAttachmentInfo,
+} from './push/chat-hub';
 
 export type { Collaborator } from './push/collaboration';
 export type { HeartbeatMessage } from './push/heartbeat';
@@ -52,6 +102,18 @@ export type { SendWorkerStatusMessage } from './push/worker';
 export type { BannerName } from './schemas/banner-name.schema';
 export { ViewableMimeTypes } from './schemas/binary-data.schema';
 export { passwordSchema } from './schemas/password.schema';
+export {
+	credentialResolverSchema,
+	credentialResolversSchema,
+	credentialResolverTypeSchema,
+	credentialResolverTypesSchema,
+	type CredentialResolver,
+	type CredentialResolverType,
+} from './schemas/credential-resolver.schema';
+export {
+	WORKFLOW_VERSION_NAME_MAX_LENGTH,
+	WORKFLOW_VERSION_DESCRIPTION_MAX_LENGTH,
+} from './schemas/workflow-version.schema';
 
 export type {
 	ProjectType,
@@ -60,6 +122,8 @@ export type {
 } from './schemas/project.schema';
 
 export {
+	isSourceControlledFileStatus,
+	type SourceControlledFileStatus,
 	type SourceControlledFile,
 	SOURCE_CONTROL_FILE_LOCATION,
 	SOURCE_CONTROL_FILE_STATUS,
@@ -95,6 +159,7 @@ export {
 	type DataTableCreateColumnSchema,
 	type DataTableListFilter,
 	type DataTableListOptions,
+	type DataTableListSortBy,
 	dateTimeSchema,
 	dataTableColumnNameSchema,
 } from './schemas/data-table.schema';
@@ -112,4 +177,41 @@ export type {
 	ExternalSecretsProviderState,
 } from './schemas/external-secrets.schema';
 
+export {
+	WorkflowExecutionStatusSchema,
+	type WorkflowExecutionStatus,
+} from './schemas/workflow-execution-status.schema';
+
 export type { UsageState } from './schemas/usage.schema';
+
+export type {
+	BreakingChangeRuleSeverity,
+	BreakingChangeRecommendation,
+	BreakingChangeAffectedWorkflow,
+	BreakingChangeInstanceIssue,
+	BreakingChangeWorkflowIssue,
+	BreakingChangeInstanceRuleResult,
+	BreakingChangeWorkflowRuleResult,
+	BreakingChangeReportResult,
+	BreakingChangeLightReportResult,
+	BreakingChangeVersion,
+} from './schemas/breaking-changes.schema';
+
+export { MIGRATION_REPORT_TARGET_VERSION } from './schemas/breaking-changes.schema';
+
+export type {
+	SecretsProviderType,
+	SecretsProviderState,
+	SecretsProviderConnectionTestState,
+	SecretProviderConnectionListItem,
+	SecretProviderConnection,
+	SecretProviderTypeResponse,
+	SecretCompletionsResponse,
+	TestSecretProviderConnectionResponse,
+	ReloadSecretProviderConnectionResponse,
+} from './schemas/secrets-provider.schema';
+
+export {
+	testSecretProviderConnectionResponseSchema,
+	reloadSecretProviderConnectionResponseSchema,
+} from './schemas/secrets-provider.schema';

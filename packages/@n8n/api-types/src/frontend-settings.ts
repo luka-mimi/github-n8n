@@ -1,6 +1,12 @@
 import type { LogLevel, WorkflowSettings } from 'n8n-workflow';
 
-import { type InsightsDateRange } from './schemas/insights.schema';
+import type {
+	ChatHubLLMProvider,
+	ChatHubSemanticSearchSettings,
+	ChatProviderSettingsDto,
+} from './chat-hub';
+import type { QuickConnectOption } from './quick-connect';
+import type { InsightsDateRange } from './schemas/insights.schema';
 
 export interface IVersionNotificationSettings {
 	enabled: boolean;
@@ -46,11 +52,11 @@ export interface IEnterpriseSettings {
 	showNonProdBanner: boolean;
 	debugInEditor: boolean;
 	binaryDataS3: boolean;
-	workflowHistory: boolean;
 	workerView: boolean;
 	advancedPermissions: boolean;
 	apiKeyScopes: boolean;
 	workflowDiffs: boolean;
+	namedVersions: boolean;
 	provisioning: boolean;
 	projects: {
 		team: {
@@ -58,13 +64,14 @@ export interface IEnterpriseSettings {
 		};
 	};
 	customRoles: boolean;
+	personalSpacePolicy: boolean;
 }
 
 export interface FrontendSettings {
 	settingsMode?: 'public' | 'authenticated';
 	inE2ETests: boolean;
 	isDocker: boolean;
-	databaseType: 'sqlite' | 'mariadb' | 'mysqldb' | 'postgresdb';
+	databaseType: 'sqlite' | 'postgresdb';
 	endpointForm: string;
 	endpointFormTest: string;
 	endpointFormWaiting: string;
@@ -73,6 +80,7 @@ export interface FrontendSettings {
 	endpointWebhook: string;
 	endpointWebhookTest: string;
 	endpointWebhookWaiting: string;
+	endpointHealth: string;
 	saveDataErrorExecution: WorkflowSettings.SaveDataExecution;
 	saveDataSuccessExecution: WorkflowSettings.SaveDataExecution;
 	saveManualExecutions: boolean;
@@ -91,12 +99,11 @@ export interface FrontendSettings {
 	nodeJsVersion: string;
 	nodeEnv: string | undefined;
 	concurrency: number;
-	isNativePythonRunnerEnabled: boolean;
 	authCookie: {
 		secure: boolean;
 	};
-	binaryDataMode: 'default' | 'filesystem' | 's3';
-	releaseChannel: 'stable' | 'beta' | 'nightly' | 'dev';
+	binaryDataMode: 'default' | 'filesystem' | 's3' | 'database';
+	releaseChannel: 'stable' | 'beta' | 'nightly' | 'dev' | 'rc';
 	n8nMetadata?: {
 		userId?: string;
 		[key: string]: string | number | undefined;
@@ -206,6 +213,10 @@ export interface FrontendSettings {
 	aiCredits: {
 		enabled: boolean;
 		credits: number;
+		setup: boolean;
+	};
+	ai: {
+		allowSendingParameterValues: boolean;
 	};
 	pruning?: {
 		isEnabled: boolean;
@@ -245,6 +256,36 @@ export type FrontendModuleSettings = {
 	mcp?: {
 		/** Whether MCP access is enabled in the instance. */
 		mcpAccessEnabled: boolean;
+	};
+
+	/**
+	 * Client settings for Chat module.
+	 */
+	'chat-hub'?: {
+		enabled: boolean;
+		providers: Record<ChatHubLLMProvider, ChatProviderSettingsDto>;
+		semanticSearch: ChatHubSemanticSearchSettings;
+	};
+
+	/**
+	 * Quick connect settings
+	 */
+	'quick-connect'?: {
+		options: QuickConnectOption[];
+	};
+
+	/**
+	 * Client settings for external secrets module.
+	 */
+	'external-secrets'?: {
+		/** Whether multiple connections per vault type are enabled. */
+		multipleConnections: boolean;
+		/** Whether project-scoped external secrets are enabled. */
+		forProjects: boolean;
+		/** Whether role-based access control for external secrets is enabled. */
+		roleBasedAccess: boolean;
+		/** Whether system roles (admin, editor) have external secrets scopes. */
+		systemRolesEnabled: boolean;
 	};
 };
 

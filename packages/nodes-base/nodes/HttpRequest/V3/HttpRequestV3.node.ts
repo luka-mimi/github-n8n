@@ -3,6 +3,7 @@ import type {
 	IBinaryKeyData,
 	IDataObject,
 	IExecuteFunctions,
+	INode,
 	INodeExecutionData,
 	INodeType,
 	INodeTypeBaseDescription,
@@ -23,6 +24,7 @@ import {
 	removeCircularRefs,
 	sleep,
 	isDomainAllowed,
+	ensureError,
 } from 'n8n-workflow';
 import type { Readable } from 'stream';
 
@@ -45,6 +47,8 @@ import { setFilename } from './utils/binaryData';
 import { mimeTypeFromResponse } from './utils/parse';
 import { configureResponseOptimizer } from '../shared/optimizeResponse';
 
+import { binaryToStringWithEncodingDetection } from './utils/buffer-decoding';
+
 function toText<T>(data: T) {
 	if (typeof data === 'object' && data !== null) {
 		return JSON.stringify(data);
@@ -58,7 +62,7 @@ export class HttpRequestV3 implements INodeType {
 		this.description = {
 			...baseDescription,
 			subtitle: '={{$parameter["method"] + ": " + $parameter["url"]}}',
-			version: [3, 4, 4.1, 4.2, 4.3],
+			version: [3, 4, 4.1, 4.2, 4.3, 4.4],
 			defaults: {
 				name: 'HTTP Request',
 				color: '#0004F5',
@@ -314,6 +318,7 @@ export class HttpRequestV3 implements INodeType {
 					queryParameterArrays,
 					response,
 					lowercaseHeaders,
+					sendCredentialsOnCrossOriginRedirect,
 				} = this.getNodeParameter('options', itemIndex, {}) as {
 					batching: { batch: { batchSize: number; batchInterval: number } };
 					proxy: string;
@@ -330,6 +335,7 @@ export class HttpRequestV3 implements INodeType {
 					};
 					redirect: { redirect: { maxRedirects: number; followRedirects: boolean } };
 					lowercaseHeaders: boolean;
+					sendCredentialsOnCrossOriginRedirect?: boolean;
 				};
 
 				responseFileName = response?.response?.outputPropertyName;
@@ -350,6 +356,7 @@ export class HttpRequestV3 implements INodeType {
 					}
 				}
 
+				const defaultSendCredentialsOnCrossOriginRedirect = nodeVersion < 4.4;
 				requestOptions = {
 					headers: {},
 					method: requestMethod,
@@ -358,6 +365,8 @@ export class HttpRequestV3 implements INodeType {
 					rejectUnauthorized: !allowUnauthorizedCerts || false,
 					followRedirect: false,
 					resolveWithFullResponse: true,
+					sendCredentialsOnCrossOriginRedirect:
+						sendCredentialsOnCrossOriginRedirect ?? defaultSendCredentialsOnCrossOriginRedirect,
 				};
 
 				if (requestOptions.method !== 'GET' && nodeVersion >= 4.1) {
@@ -403,11 +412,11 @@ export class HttpRequestV3 implements INodeType {
 						if (!cur.inputDataFieldName) return accumulator;
 						const binaryData = this.helpers.assertBinaryData(itemIndex, cur.inputDataFieldName);
 						let uploadData: Buffer | Readable;
-						const itemBinaryData = items[itemIndex].binary![cur.inputDataFieldName];
-						if (itemBinaryData.id) {
-							uploadData = await this.helpers.getBinaryStream(itemBinaryData.id);
+
+						if (binaryData.id) {
+							uploadData = await this.helpers.getBinaryStream(binaryData.id);
 						} else {
-							uploadData = Buffer.from(itemBinaryData.data, BINARY_ENCODING);
+							uploadData = Buffer.from(binaryData.data, BINARY_ENCODING);
 						}
 
 						accumulator[cur.name] = {
@@ -435,19 +444,12 @@ export class HttpRequestV3 implements INodeType {
 					} else if (specifyBody === 'json') {
 						// body is specified using JSON
 						if (typeof jsonBodyParameter !== 'object' && jsonBodyParameter !== null) {
-							try {
-								JSON.parse(jsonBodyParameter);
-							} catch {
-								throw new NodeOperationError(
-									this.getNode(),
-									'JSON parameter needs to be valid JSON',
-									{
-										itemIndex,
-									},
-								);
-							}
-
-							requestOptions.body = jsonParse(jsonBodyParameter);
+							requestOptions.body = parseJsonParameter(
+								this.getNode(),
+								jsonBodyParameter,
+								'JSON Body',
+								itemIndex,
+							);
 						} else {
 							requestOptions.body = jsonBodyParameter;
 						}
@@ -501,19 +503,12 @@ export class HttpRequestV3 implements INodeType {
 						requestOptions.qs = await reduceAsync(queryParameters, parametersToKeyValue);
 					} else if (specifyQuery === 'json') {
 						// query is specified using JSON
-						try {
-							JSON.parse(jsonQueryParameter);
-						} catch {
-							throw new NodeOperationError(
-								this.getNode(),
-								'JSON parameter needs to be valid JSON',
-								{
-									itemIndex,
-								},
-							);
-						}
-
-						requestOptions.qs = jsonParse(jsonQueryParameter);
+						requestOptions.qs = parseJsonParameter(
+							this.getNode(),
+							jsonQueryParameter,
+							'JSON Query Parameters',
+							itemIndex,
+						);
 					}
 				}
 
@@ -526,20 +521,12 @@ export class HttpRequestV3 implements INodeType {
 							parametersToKeyValue,
 						);
 					} else if (specifyHeaders === 'json') {
-						// body is specified using JSON
-						try {
-							JSON.parse(jsonHeadersParameter);
-						} catch {
-							throw new NodeOperationError(
-								this.getNode(),
-								'JSON parameter needs to be valid JSON',
-								{
-									itemIndex,
-								},
-							);
-						}
-
-						additionalHeaders = jsonParse(jsonHeadersParameter);
+						additionalHeaders = parseJsonParameter(
+							this.getNode(),
+							jsonHeadersParameter,
+							'JSON Headers',
+							itemIndex,
+						);
 					}
 					requestOptions.headers = {
 						...requestOptions.headers,
@@ -922,7 +909,11 @@ export class HttpRequestV3 implements INodeType {
 									false,
 								) as boolean;
 
-								const data = await this.helpers.binaryToString(response.body as Buffer | Readable);
+								const data = await binaryToStringWithEncodingDetection(
+									response.body as Buffer | Readable,
+									responseContentType,
+									this.helpers,
+								);
 								response.body = jsonParse(data, {
 									...(neverError
 										? { fallbackValue: {} }
@@ -934,7 +925,11 @@ export class HttpRequestV3 implements INodeType {
 						} else {
 							responseFormat = 'text';
 							if (!response.__bodyResolved) {
-								const data = await this.helpers.binaryToString(response.body as Buffer | Readable);
+								const data = await binaryToStringWithEncodingDetection(
+									response.body as Buffer | Readable,
+									responseContentType,
+									this.helpers,
+								);
 								response.body = !data ? undefined : data;
 							}
 						}
@@ -1111,10 +1106,13 @@ export class HttpRequestV3 implements INodeType {
 
 		returnItems = returnItems.map(replaceNullValues);
 
+		// Only show the Split Out hint in regular workflow context, not when running as an AI Agent tool
+		// (users cannot add nodes after tools in an AI Agent context)
 		if (
 			returnItems.length === 1 &&
 			returnItems[0].json.data &&
-			Array.isArray(returnItems[0].json.data)
+			Array.isArray(returnItems[0].json.data) &&
+			!this.isToolExecution()
 		) {
 			const message =
 				'To split the contents of ‘data’ into separate items for easier processing, add a ‘Split Out’ node after this one';
@@ -1130,5 +1128,27 @@ export class HttpRequestV3 implements INodeType {
 		}
 
 		return [returnItems];
+	}
+}
+
+/**
+ * Parses a JSON string and returns the result.
+ *
+ * @throws {NodeOperationError} if the string is not valid JSON.
+ */
+function parseJsonParameter(
+	node: INode,
+	jsonString: string,
+	fieldName: string,
+	itemIndex: number,
+): IDataObject {
+	try {
+		return JSON.parse(jsonString) as IDataObject;
+	} catch (e) {
+		const error = ensureError(e);
+		throw new NodeOperationError(node, `The value in the "${fieldName}" field is not valid JSON`, {
+			itemIndex,
+			description: error.message,
+		});
 	}
 }

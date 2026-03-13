@@ -58,6 +58,14 @@ export class LicenseState {
 		return this.isLicensed(LICENSE_FEATURES.CUSTOM_ROLES);
 	}
 
+	isDynamicCredentialsLicensed() {
+		return this.isLicensed(LICENSE_FEATURES.DYNAMIC_CREDENTIALS);
+	}
+
+	isPersonalSpacePolicyLicensed() {
+		return this.isLicensed(LICENSE_FEATURES.PERSONAL_SPACE_POLICY);
+	}
+
 	isSharingLicensed() {
 		return this.isLicensed('feat:sharing');
 	}
@@ -130,10 +138,6 @@ export class LicenseState {
 		return this.isLicensed('feat:externalSecrets');
 	}
 
-	isWorkflowHistoryLicensed() {
-		return this.isLicensed('feat:workflowHistory');
-	}
-
 	isAPIDisabled() {
 		return this.isLicensed('feat:apiDisabled');
 	}
@@ -179,7 +183,7 @@ export class LicenseState {
 	}
 
 	isProvisioningLicensed() {
-		return this.isLicensed(['feat:saml', 'feat:oidc', 'feat:ldap']);
+		return this.isLicensed(['feat:saml', 'feat:oidc']);
 	}
 
 	// --------------------

@@ -29,13 +29,60 @@ export const useCloudPlanStore = defineStore(STORES.CLOUD_PLAN, () => {
 	const state = reactive<CloudPlanState>(DEFAULT_STATE);
 	const currentUserCloudInfo = ref<Cloud.UserAccount | null>(null);
 
+	const now = ref<number>(Date.now());
+
 	const reset = () => {
 		currentUserCloudInfo.value = null;
 		state.data = null;
 		state.usage = null;
 	};
 
-	const userIsTrialing = computed(() => state.data?.metadata?.group === 'trial');
+	const userIsTrialing = computed(() => state.data?.userIsTrialing ?? false);
+
+	const bannerConfig = computed(() => state.data?.bannerConfig);
+
+	// Whether forceShow is enabled - shows banner even if previously dismissed
+	const bannerForceShow = computed(() => bannerConfig.value?.forceShow === true);
+
+	// Check if TRIAL banner was previously dismissed
+	const isBannerDismissed = computed(() => {
+		const dismissed = settingsStore.permanentlyDismissedBanners;
+
+		return dismissed.includes('TRIAL') || dismissed.includes('TRIAL_OVER');
+	});
+
+	// Whether to show trial banner:
+	// - bannerConfig must exist (backend wants to show banner)
+	// - If not dismissible, always show (regardless of previous dismissal)
+	// - If dismissible: show if forceShow is true OR banner was not previously dismissed
+	const shouldShowBanner = computed(() => {
+		if (!bannerConfig.value) return false;
+		if (!bannerDismissible.value) return true;
+		return bannerForceShow.value || !isBannerDismissed.value;
+	});
+
+	// If timeLeft is set, show it; otherwise hide
+	const bannerTimeLeft = computed(() => ({
+		show: !!bannerConfig.value?.timeLeft,
+		text: bannerConfig.value?.timeLeft?.text,
+	}));
+
+	// If showExecutions is true, show the executions section
+	const showExecutions = computed(() => bannerConfig.value?.showExecutions === true);
+
+	const bannerCta = computed(() => ({
+		text: bannerConfig.value?.cta?.text ?? 'Upgrade Now',
+		icon: bannerConfig.value?.cta?.icon ?? 'zap',
+		size: bannerConfig.value?.cta?.size ?? 'small',
+		style: bannerConfig.value?.cta?.style ?? 'success',
+		variant: bannerConfig.value?.cta?.variant,
+		href: bannerConfig.value?.cta?.href,
+	}));
+
+	// Banner icon (left side info icon) - undefined means no icon
+	const bannerIcon = computed(() => bannerConfig.value?.icon);
+
+	const bannerDismissible = computed(() => bannerConfig.value?.dismissible ?? true);
 
 	const currentPlanData = computed(() => state.data);
 
@@ -63,7 +110,7 @@ export const useCloudPlanStore = defineStore(STORES.CLOUD_PLAN, () => {
 
 	const trialExpired = computed(
 		() =>
-			state.data?.metadata?.group === 'trial' &&
+			state.data?.userIsTrialing &&
 			DateTime.now().toMillis() >= DateTime.fromISO(state.data?.expirationDate).toMillis(),
 	);
 
@@ -133,12 +180,34 @@ export const useCloudPlanStore = defineStore(STORES.CLOUD_PLAN, () => {
 		return Math.ceil(differenceInDays);
 	});
 
+	const trialTimeLeft = computed((): { count: number; unit: 'days' | 'hours' | 'minutes' } => {
+		if (!state.data?.expirationDate) {
+			return { count: 0, unit: 'days' };
+		}
+
+		const msLeft = new Date(state.data.expirationDate).valueOf() - now.value;
+		if (msLeft <= 0) {
+			return { count: 0, unit: 'minutes' };
+		}
+
+		const hours = msLeft / (1000 * 60 * 60);
+
+		if (hours < 1) {
+			return { count: Math.ceil(msLeft / (1000 * 60)), unit: 'minutes' };
+		} else if (hours < 24) {
+			return { count: Math.ceil(hours), unit: 'hours' };
+		} else {
+			return { count: Math.ceil(hours / 24), unit: 'days' };
+		}
+	});
+
 	const startPollingInstanceUsageData = () => {
 		const interval = setInterval(async () => {
+			now.value = Date.now();
 			try {
 				await getInstanceCurrentUsage();
 				if (trialExpired.value || allExecutionsUsed.value) {
-					clearTimeout(interval);
+					clearInterval(interval);
 					return;
 				}
 			} catch {}
@@ -200,6 +269,7 @@ export const useCloudPlanStore = defineStore(STORES.CLOUD_PLAN, () => {
 		state,
 		usageLeft,
 		trialDaysLeft,
+		trialTimeLeft,
 		userIsTrialing,
 		currentPlanData,
 		currentUsageData,
@@ -217,5 +287,14 @@ export const useCloudPlanStore = defineStore(STORES.CLOUD_PLAN, () => {
 		getAutoLoginCode,
 		selectedApps,
 		codingSkill,
+		shouldShowBanner,
+		bannerConfig,
+		bannerForceShow,
+		isBannerDismissed,
+		bannerTimeLeft,
+		showExecutions,
+		bannerCta,
+		bannerIcon,
+		bannerDismissible,
 	};
 });

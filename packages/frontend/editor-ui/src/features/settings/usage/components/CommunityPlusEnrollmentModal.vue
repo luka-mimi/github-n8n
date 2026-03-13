@@ -101,31 +101,24 @@ const confirm = async () => {
 				<N8nText tag="p">{{ i18n.baseText('communityPlusModal.description') }}</N8nText>
 				<ul :class="$style.features">
 					<li>
-						<i>🕰️</i>
-						<N8nText>
-							<strong>{{ i18n.baseText('communityPlusModal.features.first.title') }}</strong>
-							{{ i18n.baseText('communityPlusModal.features.first.description') }}
-						</N8nText>
-					</li>
-					<li>
 						<i>🐞</i>
 						<N8nText>
-							<strong>{{ i18n.baseText('communityPlusModal.features.second.title') }}</strong>
-							{{ i18n.baseText('communityPlusModal.features.second.description') }}
+							<strong>{{ i18n.baseText('communityPlusModal.features.debugging.title') }}</strong>
+							{{ i18n.baseText('communityPlusModal.features.debugging.description') }}
 						</N8nText>
 					</li>
 					<li>
 						<i>🔎</i>
 						<N8nText>
-							<strong>{{ i18n.baseText('communityPlusModal.features.third.title') }}</strong>
-							{{ i18n.baseText('communityPlusModal.features.third.description') }}
+							<strong>{{ i18n.baseText('communityPlusModal.features.execution.title') }}</strong>
+							{{ i18n.baseText('communityPlusModal.features.execution.description') }}
 						</N8nText>
 					</li>
 					<li>
 						<i> 📁</i>
 						<N8nText>
-							<strong>{{ i18n.baseText('communityPlusModal.features.fourth.title') }}</strong>
-							{{ i18n.baseText('communityPlusModal.features.fourth.description') }}
+							<strong>{{ i18n.baseText('communityPlusModal.features.folders.title') }}</strong>
+							{{ i18n.baseText('communityPlusModal.features.folders.description') }}
 						</N8nText>
 					</li>
 				</ul>
@@ -157,15 +150,10 @@ const confirm = async () => {
 				</N8nText>
 			</div>
 			<div :class="$style.buttons">
-				<N8nButton
-					:class="$style.skip"
-					type="secondary"
-					text
-					:disabled="isLoading"
-					@click="closeModal"
-					>{{ i18n.baseText('communityPlusModal.button.skip') }}</N8nButton
-				>
-				<N8nButton :disabled="!valid || isLoading" type="primary" @click="confirm">
+				<N8nButton variant="ghost" :class="$style.skip" :disabled="isLoading" @click="closeModal">{{
+					i18n.baseText('communityPlusModal.button.skip')
+				}}</N8nButton>
+				<N8nButton :disabled="!valid || isLoading" variant="solid" @click="confirm">
 					{{ i18n.baseText('communityPlusModal.button.confirm') }}
 				</N8nButton>
 			</div>
@@ -204,9 +192,5 @@ const confirm = async () => {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-}
-
-.skip {
-	padding: 0;
 }
 </style>

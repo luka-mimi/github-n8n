@@ -21,6 +21,18 @@ import type { IUsedCredential } from '@/features/credentials/credentials.types';
 import { useNodeTypesStore } from '@/app/stores/nodeTypes.store';
 import { injectWorkflowState, useWorkflowState } from './useWorkflowState';
 
+const mockDocumentStoreUsedCredentials: Record<string, IUsedCredential> = {};
+
+vi.mock('@/app/stores/workflowDocument.store', async () => {
+	const actual = await vi.importActual('@/app/stores/workflowDocument.store');
+	return {
+		...actual,
+		useWorkflowDocumentStore: vi.fn(() => ({
+			usedCredentials: mockDocumentStoreUsedCredentials,
+		})),
+	};
+});
+
 vi.mock('@/app/composables/useWorkflowState', async () => {
 	const actual = await vi.importActual('@/app/composables/useWorkflowState');
 	return {
@@ -36,6 +48,10 @@ describe('useNodeHelpers()', () => {
 
 	afterEach(() => {
 		vi.clearAllMocks();
+		// Clear mock document store state
+		for (const key of Object.keys(mockDocumentStoreUsedCredentials)) {
+			delete mockDocumentStoreUsedCredentials[key];
+		}
 	});
 
 	describe('initialization', () => {
@@ -241,9 +257,10 @@ describe('useNodeHelpers()', () => {
 			mockedStore(useSettingsStore).isEnterpriseFeatureEnabled = createMockEnterpriseSettings({
 				[EnterpriseEditionFeature.Sharing]: false,
 			});
-			mockedStore(useWorkflowsStore).usedCredentials = {
+			mockedStore(useWorkflowsStore).workflowId = 'test-workflow';
+			Object.assign(mockDocumentStoreUsedCredentials, {
 				[credentialWithoutAccess.id]: credentialWithoutAccess,
-			};
+			});
 
 			const result = getForeignCredentialsIfSharingEnabled({
 				[credentialWithoutAccess.id]: {
@@ -285,10 +302,11 @@ describe('useNodeHelpers()', () => {
 			mockedStore(useSettingsStore).isEnterpriseFeatureEnabled = createMockEnterpriseSettings({
 				[EnterpriseEditionFeature.Sharing]: true,
 			});
-			mockedStore(useWorkflowsStore).usedCredentials = {
+			mockedStore(useWorkflowsStore).workflowId = 'test-workflow';
+			Object.assign(mockDocumentStoreUsedCredentials, {
 				[credentialWithAccess1.id]: credentialWithAccess1,
 				[credentialWithAccess2.id]: credentialWithAccess2,
-			};
+			});
 
 			const result = getForeignCredentialsIfSharingEnabled({
 				[credentialWithAccess1.id]: {
@@ -323,10 +341,11 @@ describe('useNodeHelpers()', () => {
 			mockedStore(useSettingsStore).isEnterpriseFeatureEnabled = createMockEnterpriseSettings({
 				[EnterpriseEditionFeature.Sharing]: true,
 			});
-			mockedStore(useWorkflowsStore).usedCredentials = {
+			mockedStore(useWorkflowsStore).workflowId = 'test-workflow';
+			Object.assign(mockDocumentStoreUsedCredentials, {
 				[credentialWithAccess.id]: credentialWithAccess,
 				[credentialWithoutAccess.id]: credentialWithoutAccess,
-			};
+			});
 
 			const result = getForeignCredentialsIfSharingEnabled({
 				[credentialWithAccess.id]: {
@@ -697,6 +716,70 @@ describe('useNodeHelpers()', () => {
 			const hints = getNodeHints(workflow, node, nodeType);
 
 			expect(hints).toHaveLength(1);
+		});
+	});
+
+	describe('updateNodeParameterIssues()', () => {
+		it('should pass nodeTypeDescription to validation and respect @feature conditions', () => {
+			const nodeTypeWithFeatures: INodeTypeDescription = {
+				displayName: 'Test Node',
+				name: 'testNode',
+				group: ['transform'],
+				version: [1, 2],
+				description: 'Test node',
+				defaults: { name: 'Test' },
+				inputs: [NodeConnectionTypes.Main],
+				outputs: [NodeConnectionTypes.Main],
+				features: {
+					testFeature: { '@version': [{ _cnd: { gte: 2 } }] },
+				},
+				properties: [
+					{
+						displayName: 'Field Hidden When Feature Enabled',
+						name: 'fieldHiddenWhenFeatureOn',
+						type: 'string',
+						default: '',
+						required: true,
+						displayOptions: {
+							show: {
+								'@feature': [{ _cnd: { not: 'testFeature' } }],
+							},
+						},
+					},
+				],
+			};
+
+			const node: INodeUi = {
+				id: 'test-node-id',
+				name: 'Test Node',
+				type: 'testNode',
+				typeVersion: 2, // Feature enabled at version >= 2, so field should be hidden
+				position: [0, 0],
+				parameters: {
+					fieldHiddenWhenFeatureOn: '', // Empty required field, but should be hidden
+				},
+			};
+
+			mockedStore(useNodeTypesStore).getNodeType = vi.fn().mockReturnValue(nodeTypeWithFeatures);
+			const getNodeParametersIssuesSpy = vi.spyOn(NodeHelpers, 'getNodeParametersIssues');
+
+			const workflowState = useWorkflowState();
+			const { updateNodeParameterIssues } = useNodeHelpers({ workflowState });
+
+			updateNodeParameterIssues(node);
+
+			expect(getNodeParametersIssuesSpy).toHaveBeenCalledWith(
+				nodeTypeWithFeatures.properties,
+				node,
+				nodeTypeWithFeatures,
+			);
+
+			const issues = getNodeParametersIssuesSpy.mock.results[0].value as ReturnType<
+				typeof NodeHelpers.getNodeParametersIssues
+			>;
+			expect(issues).toBeNull();
+
+			getNodeParametersIssuesSpy.mockRestore();
 		});
 	});
 });

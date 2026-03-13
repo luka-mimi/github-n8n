@@ -9,11 +9,12 @@ import { useI18n } from '@n8n/i18n';
 import { type ResourceCounts, useProjectsStore } from '../projects.store';
 import type { Project, ProjectRelation, ProjectMemberData } from '../projects.types';
 import { useToast } from '@/app/composables/useToast';
-import { VIEWS } from '@/app/constants';
+import { DEBOUNCE_TIME, getDebounceTime, VIEWS } from '@/app/constants';
 import ProjectDeleteDialog from '../components/ProjectDeleteDialog.vue';
 import ProjectRoleUpgradeDialog from '../components/ProjectRoleUpgradeDialog.vue';
 import ProjectMembersTable from '../components/ProjectMembersTable.vue';
 import { useRolesStore } from '@/app/stores/roles.store';
+import { ROLE } from '@n8n/api-types';
 import { useCloudPlanStore } from '@/app/stores/cloudPlan.store';
 import { useTelemetry } from '@/app/composables/useTelemetry';
 import { useDocumentTitle } from '@/app/composables/useDocumentTitle';
@@ -22,6 +23,9 @@ import { isIconOrEmoji, type IconOrEmoji } from '@n8n/design-system/components/N
 import type { TableOptions } from '@n8n/design-system/components/N8nDataTableServer';
 import type { UserAction } from '@n8n/design-system';
 import { isProjectRole } from '@/app/utils/typeGuards';
+import { useUserRoleProvisioningStore } from '@/features/settings/sso/provisioning/composables/userRoleProvisioning.store';
+import { N8nAlert } from '@n8n/design-system';
+import ProjectExternalSecrets from '../components/ProjectExternalSecrets.vue';
 
 import {
 	N8nButton,
@@ -45,6 +49,7 @@ const i18n = useI18n();
 const projectsStore = useProjectsStore();
 const rolesStore = useRolesStore();
 const cloudPlanStore = useCloudPlanStore();
+const userRoleProvisioningStore = useUserRoleProvisioningStore();
 const toast = useToast();
 const router = useRouter();
 const telemetry = useTelemetry();
@@ -90,8 +95,12 @@ const membersTableState = ref<TableOptions>({
 	],
 });
 
+const userSearchQuery = ref('');
+const userSearchResults = ref<typeof usersStore.allUsers>([]);
+const isLoadingUsers = ref(false);
+
 const usersList = computed(() =>
-	usersStore.allUsers.filter((user) => {
+	userSearchResults.value.filter((user) => {
 		const isAlreadySharedWithUser = (formData.value.relations || []).find((r) => r.id === user.id);
 
 		return !isAlreadySharedWithUser;
@@ -121,8 +130,19 @@ const onAddMember = async (userId: string) => {
 	const user = usersStore.usersById[userId];
 	if (!user) return;
 
-	const role = firstLicensedRole.value;
+	// Default to project admin for instance owners and admins
+	let role = firstLicensedRole.value;
 	if (!role) return;
+
+	// If user is instance owner or admin, default to project admin
+	if (user.role === ROLE.Owner || user.role === ROLE.Admin) {
+		const projectAdminRole = rolesStore.processedProjectRoles.find(
+			(r) => r.slug === 'project:admin' && r.licensed,
+		);
+		if (projectAdminRole) {
+			role = 'project:admin';
+		}
+	}
 
 	// Optimistically update UI
 	if (!formData.value.relations.find((r) => r.id === userId)) {
@@ -167,6 +187,7 @@ const onUpdateMemberRole = async ({ userId, role }: { userId: string; role: Role
 	try {
 		suppressNextSync.value = true;
 		await projectsStore.updateMemberRole(projectsStore.currentProject.id, userId, role);
+		void rolesStore.fetchRoles();
 		toast.showMessage({
 			type: 'success',
 			title: i18n.baseText('projects.settings.memberRole.updated.title'),
@@ -422,9 +443,9 @@ const relationUsers = computed(() =>
 			...user,
 			...relation,
 			role: safeRole,
-			firstName: user?.firstName ?? null,
-			lastName: user?.lastName ?? null,
-			email: user?.email ?? null,
+			firstName: relation?.firstName ?? user?.firstName ?? null,
+			lastName: relation?.lastName ?? user?.lastName ?? null,
+			email: relation?.email ?? user?.email ?? null,
 		};
 	}),
 );
@@ -459,7 +480,7 @@ watch(shouldShowSearch, (show) => {
 
 const debouncedSearch = useDebounceFn(() => {
 	membersTableState.value.page = 0; // Reset to first page on search
-}, 300);
+}, getDebounceTime(DEBOUNCE_TIME.INPUT.SEARCH));
 
 const onSearch = (value: string) => {
 	search.value = value;
@@ -470,13 +491,52 @@ const onUpdateMembersTableOptions = (options: TableOptions) => {
 	membersTableState.value = options;
 };
 
+const searchUsers = async (query: string) => {
+	userSearchQuery.value = query;
+
+	isLoadingUsers.value = true;
+	try {
+		// If query is empty, load initial set of users, otherwise search
+		const filter = query.trim() ? { fullText: query } : undefined;
+		await usersStore.fetchUsers({
+			take: 50,
+			filter,
+		});
+		// Get the search results from the store
+		if (query.trim()) {
+			userSearchResults.value = usersStore.allUsers.filter((user) => {
+				const searchLower = query.toLowerCase();
+				const fullName = `${user.firstName ?? ''} ${user.lastName ?? ''}`.toLowerCase();
+				const email = (user.email ?? '').toLowerCase();
+				return fullName.includes(searchLower) || email.includes(searchLower);
+			});
+		} else {
+			// Show all loaded users when no search query
+			userSearchResults.value = usersStore.allUsers;
+		}
+	} catch (error) {
+		toast.showError(error, i18n.baseText('projects.settings.users.search.error'));
+	} finally {
+		isLoadingUsers.value = false;
+	}
+};
+
+const debouncedUserSearch = useDebounceFn(searchUsers, getDebounceTime(DEBOUNCE_TIME.INPUT.SEARCH));
+
 onBeforeMount(async () => {
-	await usersStore.fetchUsers();
+	// Load initial set of users for dropdown
+	await searchUsers('');
 });
 
-onMounted(() => {
+const isProjectRoleProvisioningEnabled = computed(
+	() => userRoleProvisioningStore.provisioningConfig?.scopesProvisionProjectRoles || false,
+);
+
+onMounted(async () => {
 	documentTitle.set(i18n.baseText('projects.settings'));
 	selectProjectNameIfMatchesDefault();
+
+	await Promise.all([userRoleProvisioningStore.getProvisioningConfig(), rolesStore.fetchRoles()]);
 });
 </script>
 
@@ -490,7 +550,7 @@ onMounted(() => {
 				</N8nText>
 				<div :class="$style.headerButtons">
 					<N8nButton
-						type="secondary"
+						variant="subtle"
 						native-type="button"
 						:disabled="!isDirty"
 						class="mr-2xs"
@@ -500,7 +560,7 @@ onMounted(() => {
 					>
 					<N8nButton
 						:disabled="!isValid || !isDirty"
-						type="primary"
+						variant="solid"
 						data-test-id="project-settings-save-button"
 						@click.stop.prevent="onSubmit"
 						>{{ i18n.baseText('projects.settings.button.save') }}</N8nButton
@@ -550,7 +610,10 @@ onMounted(() => {
 					@validate="isValid = $event"
 				/>
 			</fieldset>
-			<fieldset>
+
+			<ProjectExternalSecrets :class="$style.externalSecrets" />
+
+			<fieldset id="projectMembers">
 				<h3>
 					<label for="projectMembers">{{
 						i18n.baseText('projects.settings.projectMembers')
@@ -565,7 +628,11 @@ onMounted(() => {
 						:current-user-id="usersStore.currentUser?.id"
 						:placeholder="i18n.baseText('workflows.shareModal.select.placeholder')"
 						data-test-id="project-members-select"
+						remote
+						:remote-method="debouncedUserSearch"
+						:loading="isLoadingUsers"
 						@update:model-value="onAddMember"
+						:disabled="isProjectRoleProvisioningEnabled"
 					>
 						<template #prefix>
 							<N8nIcon icon="search" />
@@ -585,6 +652,14 @@ onMounted(() => {
 						</template>
 					</N8nInput>
 				</div>
+				<div v-if="isProjectRoleProvisioningEnabled" class="mb-m">
+					<N8nAlert
+						type="info"
+						:title="
+							i18n.baseText('settings.provisioningProjectRolesHandledBySsoProvider.description')
+						"
+					/>
+				</div>
 				<div v-if="relationUsers.length > 0" :class="$style.membersTableContainer">
 					<ProjectMembersTable
 						v-model:table-options="membersTableState"
@@ -593,10 +668,10 @@ onMounted(() => {
 						:current-user-id="usersStore.currentUser?.id"
 						:project-roles="rolesStore.processedProjectRoles"
 						:actions="projectMembersActions"
+						:can-edit-role="!isProjectRoleProvisioningEnabled"
 						@update:options="onUpdateMembersTableOptions"
 						@update:role="onUpdateMemberRole"
 						@action="onMembersListAction"
-						@show-upgrade-dialog="upgradeDialogVisible = true"
 					/>
 				</div>
 			</fieldset>
@@ -606,7 +681,7 @@ onMounted(() => {
 					i18n.baseText('projects.settings.danger.message')
 				}}</small>
 				<N8nButton
-					type="tertiary"
+					variant="subtle"
 					size="large"
 					native-type="button"
 					data-test-id="project-settings-delete-button"
@@ -683,6 +758,11 @@ onMounted(() => {
 
 .upgrade {
 	cursor: pointer;
+}
+
+.externalSecrets {
+	max-width: 100%;
+	overflow: hidden;
 }
 
 .membersInputRow {

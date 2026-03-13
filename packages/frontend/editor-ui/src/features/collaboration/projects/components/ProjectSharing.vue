@@ -8,7 +8,16 @@ import { computed, ref, watch } from 'vue';
 import { ProjectTypes, type ProjectListItem, type ProjectSharingData } from '../projects.types';
 import ProjectSharingInfo from './ProjectSharingInfo.vue';
 
-import { N8nBadge, N8nButton, N8nIcon, N8nOption, N8nSelect, N8nText } from '@n8n/design-system';
+import {
+	N8nBadge,
+	N8nButton,
+	N8nIcon,
+	N8nOption,
+	N8nSelect,
+	N8nText,
+	N8nTooltip,
+} from '@n8n/design-system';
+
 const locale = useI18n();
 
 type Props = {
@@ -21,19 +30,45 @@ type Props = {
 	emptyOptionsText?: string;
 	size?: SelectSize;
 	clearable?: boolean;
+	canShareGlobally?: boolean;
+	isSharedGlobally?: boolean;
+	allUsersLabel?: string;
+	disabledTooltip?: string;
 };
 
 const props = defineProps<Props>();
+
+const GLOBAL_GROUP: ProjectListItem = {
+	id: 'all_users',
+	name: props.allUsersLabel ?? locale.baseText('projects.sharing.allUsers'),
+	type: 'public',
+	icon: { type: 'icon', value: 'globe' },
+	role: 'member',
+	createdAt: `${Date.now()}`,
+	updatedAt: `${Date.now()}`,
+};
+
 const model = defineModel<(ProjectSharingData | null) | ProjectSharingData[]>({
 	required: true,
 });
+
 const emit = defineEmits<{
 	projectAdded: [value: ProjectSharingData];
 	projectRemoved: [value: ProjectSharingData];
 	clear: [];
+	'update:shareWithAllUsers': [value: boolean];
 }>();
 
 const selectedProject = ref(Array.isArray(model.value) ? '' : (model.value?.id ?? ''));
+
+const selectedProjects = computed((): ProjectSharingData[] | null => {
+	if (!Array.isArray(model.value)) {
+		return null;
+	}
+
+	return props.isSharedGlobally ? [GLOBAL_GROUP, ...model.value] : model.value;
+});
+
 const filter = ref('');
 const selectPlaceholder = computed(
 	() => props.placeholder ?? locale.baseText('projects.sharing.select.placeholder'),
@@ -50,13 +85,14 @@ const filteredProjects = computed(() =>
 	),
 );
 
-const sortedProjects = computed(() =>
-	orderBy(
+const sortedProjects = computed((): ProjectListItem[] => [
+	...(props.canShareGlobally && !props.isSharedGlobally ? [GLOBAL_GROUP] : []),
+	...orderBy(
 		filteredProjects.value,
 		['type', (project) => project.name?.toLowerCase()],
 		['desc', 'asc'],
 	),
-);
+]);
 
 const projectIcon = computed<IconOrEmoji>(() => {
 	const defaultIcon: IconOrEmoji = { type: 'icon', value: 'layers' };
@@ -76,6 +112,11 @@ const setFilter = (query: string) => {
 };
 
 const onProjectSelected = (projectId: string) => {
+	if (projectId === GLOBAL_GROUP.id) {
+		emit('update:shareWithAllUsers', true);
+		return;
+	}
+
 	const project = props.projects.find((p) => p.id === projectId);
 
 	if (!project) {
@@ -92,6 +133,12 @@ const onProjectSelected = (projectId: string) => {
 
 const onRoleAction = (project: ProjectSharingData, role: string) => {
 	if (!Array.isArray(model.value) || props.readonly) {
+		return;
+	}
+
+	if (project.id === GLOBAL_GROUP.id && role === 'remove') {
+		emit('update:shareWithAllUsers', false);
+
 		return;
 	}
 
@@ -120,38 +167,45 @@ watch(
 </script>
 <template>
 	<div>
-		<N8nSelect
-			v-if="!props.static"
-			:model-value="selectedProject"
-			data-test-id="project-sharing-select"
-			:filterable="true"
-			:filter-method="setFilter"
-			:placeholder="selectPlaceholder"
-			:default-first-option="true"
-			:no-data-text="noDataText"
-			:size="size ?? 'medium'"
-			:disabled="props.readonly"
-			:clearable
-			:popper-class="$style.popper"
-			@update:model-value="onProjectSelected"
-			@clear="emit('clear')"
-		>
-			<template #prefix>
-				<N8nIcon v-if="projectIcon.type === 'icon'" :icon="projectIcon.value" color="text-dark" />
-				<N8nText v-else-if="projectIcon.type === 'emoji'" color="text-light" :class="$style.emoji">
-					{{ projectIcon.value }}
-				</N8nText>
-			</template>
-			<N8nOption
-				v-for="project in sortedProjects"
-				:key="project.id"
-				:value="project.id"
-				:label="project.name ?? ''"
+		<N8nTooltip :disabled="!props.disabledTooltip" placement="top">
+			<template #content>{{ props.disabledTooltip }}</template>
+			<N8nSelect
+				v-if="!props.static || props.disabledTooltip"
+				:model-value="selectedProject"
+				data-test-id="project-sharing-select"
+				:filterable="true"
+				:filter-method="setFilter"
+				:placeholder="selectPlaceholder"
+				:default-first-option="true"
+				:no-data-text="noDataText"
+				:size="size ?? 'medium'"
+				:disabled="props.readonly || !!props.disabledTooltip"
+				:clearable
+				:popper-class="$style.popper"
+				@update:model-value="onProjectSelected"
+				@clear="emit('clear')"
 			>
-				<ProjectSharingInfo :project="project" />
-			</N8nOption>
-		</N8nSelect>
-		<ul v-if="Array.isArray(model)" :class="$style.selectedProjects">
+				<template #prefix>
+					<N8nIcon v-if="projectIcon.type === 'icon'" :icon="projectIcon.value" color="text-dark" />
+					<N8nText
+						v-else-if="projectIcon.type === 'emoji'"
+						color="text-light"
+						:class="$style.emoji"
+					>
+						{{ projectIcon.value }}
+					</N8nText>
+				</template>
+				<N8nOption
+					v-for="project in sortedProjects"
+					:key="project.id"
+					:value="project.id"
+					:label="project.name ?? ''"
+				>
+					<ProjectSharingInfo :project="project" />
+				</N8nOption>
+			</N8nSelect>
+		</N8nTooltip>
+		<ul v-if="selectedProjects" :class="$style.selectedProjects">
 			<li v-if="props.homeProject" :class="$style.project" data-test-id="project-sharing-owner">
 				<ProjectSharingInfo :project="props.homeProject">
 					<N8nBadge theme="tertiary" bold>
@@ -160,14 +214,18 @@ watch(
 				>
 			</li>
 			<li
-				v-for="project in model"
+				v-for="project in selectedProjects"
 				:key="project.id"
 				:class="$style.project"
 				data-test-id="project-sharing-list-item"
 			>
 				<ProjectSharingInfo :project="project" />
 				<N8nSelect
-					v-if="props.roles?.length && !props.static"
+					v-if="
+						props.roles?.length &&
+						!props.static &&
+						!(project.id === GLOBAL_GROUP.id && !canShareGlobally)
+					"
 					:class="$style.projectRoleSelect"
 					:model-value="props.roles[0]"
 					:disabled="props.readonly"
@@ -182,11 +240,12 @@ watch(
 					/>
 				</N8nSelect>
 				<N8nButton
-					v-if="!props.static"
-					type="tertiary"
+					variant="subtle"
+					iconOnly
+					v-if="!props.static && !(project.id === GLOBAL_GROUP.id && !canShareGlobally)"
 					native-type="button"
-					square
 					icon="trash-2"
+					:aria-label="locale.baseText('generic.delete')"
 					:disabled="props.readonly"
 					data-test-id="project-sharing-remove"
 					@click="onRoleAction(project, 'remove')"
@@ -225,7 +284,7 @@ watch(
 }
 
 .popper :global(.el-scrollbar__wrap) {
-	overflow: hidden;
+	scrollbar-width: none; // <-- hides scrollbar but maintains scrolling
 }
 
 .emoji {

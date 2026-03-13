@@ -4,9 +4,9 @@ import type { AxiosInstance, AxiosResponse } from 'axios';
 import axios from 'axios';
 import type { IDataObject, INodeProperties } from 'n8n-workflow';
 
-import { DOCS_HELP_NOTICE, EXTERNAL_SECRETS_NAME_REGEX } from '../constants';
+import { DOCS_HELP_NOTICE } from '../constants';
 import { ExternalSecretsConfig } from '../external-secrets.config';
-import type { SecretsProviderSettings, SecretsProviderState } from '../types';
+import type { SecretsProviderSettings } from '../types';
 import { SecretsProvider } from '../types';
 
 type VaultAuthMethod = 'token' | 'usernameAndPassword' | 'appRole';
@@ -59,7 +59,7 @@ interface VaultMount {
 	description: string;
 	external_entropy_access: boolean;
 	local: boolean;
-	options: Record<string, string | number | boolean | null>;
+	options: Record<string, string | number | boolean | null> | null;
 	plugin_version: string;
 	running_plugin_version: string;
 	running_sha256: string;
@@ -218,8 +218,6 @@ export class VaultProvider extends SecretsProvider {
 
 	name = 'vault';
 
-	state: SecretsProviderState = 'initializing';
-
 	private cachedSecrets: Record<string, IDataObject> = {};
 
 	private settings: VaultSettings;
@@ -261,48 +259,34 @@ export class VaultProvider extends SecretsProvider {
 		this.logger.debug('Vault provider initialized');
 	}
 
-	async connect(): Promise<void> {
+	protected async doConnect(): Promise<void> {
+		// Authenticate based on method
 		if (this.settings.authMethod === 'token') {
 			this.#currentToken = this.settings.token;
 		} else if (this.settings.authMethod === 'usernameAndPassword') {
-			try {
-				this.#currentToken = await this.authUsernameAndPassword(
-					this.settings.username,
-					this.settings.password,
-				);
-			} catch {
-				this.state = 'error';
-				this.logger.error('Failed to connect to Vault using Username and Password credentials.');
-				return;
+			this.#currentToken = await this.authUsernameAndPassword(
+				this.settings.username,
+				this.settings.password,
+			);
+			if (!this.#currentToken) {
+				throw new Error('Failed to authenticate with Username and Password');
 			}
 		} else if (this.settings.authMethod === 'appRole') {
-			try {
-				this.#currentToken = await this.authAppRole(this.settings.roleId, this.settings.secretId);
-			} catch {
-				this.state = 'error';
-				this.logger.error('Failed to connect to Vault using AppRole credentials.');
-				return;
+			this.#currentToken = await this.authAppRole(this.settings.roleId, this.settings.secretId);
+			if (!this.#currentToken) {
+				throw new Error('Failed to authenticate with AppRole');
 			}
 		}
-		try {
-			if (!(await this.test())[0]) {
-				this.state = 'error';
-			} else {
-				this.state = 'connected';
 
-				[this.#tokenInfo] = await this.getTokenInfo();
-				this.setupTokenRefresh();
-			}
-		} catch (e) {
-			this.state = 'error';
-			this.logger.error('Failed credentials test on Vault connect.');
+		// Test connection
+		const [testSuccess] = await this.test();
+		if (!testSuccess) {
+			throw new Error('Connection test failed');
 		}
 
-		try {
-			await this.update();
-		} catch {
-			this.logger.warn('Failed to update Vault secrets');
-		}
+		// Setup token refresh
+		[this.#tokenInfo] = await this.getTokenInfo();
+		this.setupTokenRefresh();
 	}
 
 	async disconnect(): Promise<void> {
@@ -474,7 +458,12 @@ export class VaultProvider extends SecretsProvider {
 			(
 				await Promise.all(
 					kvs.map(async ([basePath, data]): Promise<[string, IDataObject] | null> => {
-						const value = await this.getKVSecrets(basePath, data.options.version as string, '');
+						const version = data.options?.version;
+						if (typeof version !== 'string') {
+							this.logger.debug(`Skipping KV mount "${basePath}" — no version in mount options`);
+							return null;
+						}
+						const value = await this.getKVSecrets(basePath, version, '');
 						if (value === null) {
 							return null;
 						}
@@ -542,15 +531,9 @@ export class VaultProvider extends SecretsProvider {
 
 	getSecretNames(): string[] {
 		const getKeys = ([k, v]: [string, IDataObject]): string[] => {
-			if (!EXTERNAL_SECRETS_NAME_REGEX.test(k)) {
-				return [];
-			}
 			if (typeof v === 'object') {
 				const keys: string[] = [];
 				for (const key of Object.keys(v)) {
-					if (!EXTERNAL_SECRETS_NAME_REGEX.test(key)) {
-						continue;
-					}
 					const value = v[key];
 					if (typeof value === 'object' && value !== null) {
 						keys.push(...getKeys([key, value as IDataObject]).map((ok) => `${k}.${ok}`));

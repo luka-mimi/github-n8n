@@ -8,7 +8,7 @@ import type {
 import type { ILogInStatus } from '@/features/settings/users/users.types';
 import type { IUsedCredential } from '@/features/credentials/credentials.types';
 import type { Scope } from '@n8n/permissions';
-import type { NodeCreatorTag } from '@n8n/design-system';
+import type { NodeCreatorTag, IconName, BinaryMetadata } from '@n8n/design-system';
 import type {
 	GenericValue,
 	IConnections,
@@ -26,18 +26,20 @@ import type {
 	FeatureFlags,
 	ITelemetryTrackProperties,
 	WorkflowSettings,
+	WorkflowSettingsBinaryMode,
 	INodeExecutionData,
 	NodeConnectionType,
 	StartNodeData,
 	ITaskData,
 	ISourceData,
 	PublicInstalledPackage,
+	IDestinationNode,
+	AgentRequestQuery,
 } from 'n8n-workflow';
 import type { Version } from '@n8n/rest-api-client/api/versions';
 import type { Cloud, InstanceUsage } from '@n8n/rest-api-client/api/cloudPlans';
 import type {
 	WorkflowMetadata,
-	WorkflowData,
 	WorkflowDataCreate,
 	WorkflowDataUpdate,
 } from '@n8n/rest-api-client/api/workflows';
@@ -50,17 +52,18 @@ import type {
 	AI_OTHERS_NODE_CREATOR_VIEW,
 	AI_UNCATEGORIZED_CATEGORY,
 	AI_EVALUATION,
+	HUMAN_IN_THE_LOOP_CATEGORY,
 } from '@/app/constants';
 import type { CREDENTIAL_EDIT_MODAL_KEY } from '@/features/credentials/credentials.constants';
 import type { BulkCommand, Undoable } from '@/app/models/history';
 
 import type { ProjectSharingData } from '@/features/collaboration/projects/projects.types';
-import type { IconName } from '@n8n/design-system/src/components/N8nIcon/icons';
 import type {
 	BaseFolderItem,
 	FolderListItem,
 	ResourceParentFolder,
 } from '@/features/core/folders/folders.types';
+import type { WorkflowHistory } from '@n8n/rest-api-client/api/workflowHistory';
 
 export * from '@n8n/design-system/types';
 
@@ -155,6 +158,7 @@ export interface INodeUi extends INode {
 	name: string;
 	pinData?: IDataObject;
 	draggable?: boolean;
+	placeholder?: boolean;
 }
 
 export interface INodeTypesMaxCount {
@@ -181,17 +185,18 @@ export interface IAiDataContent {
 }
 
 export interface IStartRunData {
-	workflowData: WorkflowData;
+	workflowId: string;
 	startNodes?: StartNodeData[];
-	destinationNode?: string;
+	destinationNode?: IDestinationNode;
 	runData?: IRunData;
 	dirtyNodeNames?: string[];
 	triggerToStartFrom?: {
 		name: string;
 		data?: ITaskData;
 	};
+	chatSessionId?: string;
 	agentRequest?: {
-		query: NodeParameterValueType;
+		query: AgentRequestQuery;
 		tool: {
 			name: NodeParameterValueType;
 		};
@@ -235,6 +240,7 @@ export interface INewWorkflowData {
 export interface IWorkflowDb {
 	id: string;
 	name: string;
+	description?: string | null;
 	active: boolean;
 	isArchived: boolean;
 	createdAt: number | string;
@@ -248,15 +254,15 @@ export interface IWorkflowDb {
 	homeProject?: ProjectSharingData;
 	scopes?: Scope[];
 	versionId: string;
+	activeVersionId: string | null;
 	usedCredentials?: IUsedCredential[];
 	meta?: WorkflowMetadata;
-	parentFolder?: {
-		id: string;
-		name: string;
-		parentFolderId: string | null;
+	parentFolder?: ResourceParentFolder & {
 		createdAt?: string;
 		updatedAt?: string;
 	};
+	activeVersion?: WorkflowHistory | null;
+	checksum?: string;
 }
 
 // For workflow list we don't need the full workflow data
@@ -271,9 +277,11 @@ export type FolderResource = BaseFolderItem & {
 
 export type WorkflowResource = BaseResource & {
 	resourceType: 'workflow';
+	description?: string;
 	updatedAt: string;
 	createdAt: string;
 	active: boolean;
+	activeVersionId: string | null;
 	isArchived: boolean;
 	homeProject?: ProjectSharingData;
 	scopes?: Scope[];
@@ -282,6 +290,7 @@ export type WorkflowResource = BaseResource & {
 	readOnly: boolean;
 	parentFolder?: ResourceParentFolder;
 	settings?: Partial<IWorkflowSettings>;
+	hasResolvableCredentials?: boolean;
 };
 
 export type VariableResource = BaseResource & {
@@ -301,6 +310,8 @@ export type CredentialsResource = BaseResource & {
 	sharedWithProjects?: ProjectSharingData[];
 	readOnly: boolean;
 	needsSetup: boolean;
+	isGlobal?: boolean;
+	isResolvable?: boolean;
 };
 
 // Base resource types that are always available
@@ -334,6 +345,8 @@ export type WorkflowListItem = Omit<
 	'nodes' | 'connections' | 'pinData' | 'usedCredentials' | 'meta'
 > & {
 	resource: 'workflow';
+	description?: string;
+	hasResolvableCredentials?: boolean;
 };
 
 export type WorkflowListResource = WorkflowListItem | FolderListItem;
@@ -343,6 +356,7 @@ export interface IWorkflowShortResponse {
 	id: string;
 	name: string;
 	active: boolean;
+	activeVersionId: string | null;
 	createdAt: number | string;
 	updatedAt: number | string;
 	tags: ITag[];
@@ -410,6 +424,7 @@ export interface IWorkflowSettings extends IWorkflowSettingsWorkflow {
 	callerIds?: string;
 	callerPolicy?: WorkflowSettings.CallerPolicy;
 	executionOrder: NonNullable<IWorkflowSettingsWorkflow['executionOrder']>;
+	binaryMode?: WorkflowSettingsBinaryMode;
 	availableInMCP?: boolean;
 }
 
@@ -418,8 +433,6 @@ export interface ITimeoutHMS {
 	minutes: number;
 	seconds: number;
 }
-
-export type WorkflowTitleStatus = 'EXECUTING' | 'IDLE' | 'ERROR' | 'DEBUG';
 
 export type ExtractActionKeys<T> = T extends SimplifiedNodeType ? T['name'] : never;
 
@@ -441,7 +454,7 @@ export type SimplifiedNodeType = Pick<
 	| 'defaults'
 	| 'outputs'
 > & {
-	tag?: string;
+	tag?: NodeCreatorTag;
 };
 export interface SubcategoryItemProps {
 	description?: string;
@@ -456,6 +469,10 @@ export interface SubcategoryItemProps {
 	defaults?: INodeParameters;
 	forceIncludeNodes?: string[];
 	sections?: string[];
+	items?: INodeCreateElement[];
+	new?: boolean;
+	hideActions?: boolean;
+	actionsFilter?: (items: ActionTypeDescription[]) => ActionTypeDescription[];
 }
 export interface ViewItemProps {
 	title: string;
@@ -531,6 +548,10 @@ export interface SectionCreateElement extends CreateElementBase {
 	type: 'section';
 	title: string;
 	children: INodeCreateElement[];
+	/**
+	 * Whether to show a separator at the bottom of the expanded section
+	 */
+	showSeparator?: boolean;
 }
 
 export interface ViewCreateElement extends CreateElementBase {
@@ -618,6 +639,7 @@ export type ModalState = {
 
 export interface NewCredentialsModal extends ModalState {
 	showAuthSelector?: boolean;
+	forceManualMode?: boolean;
 }
 
 export type IRunDataDisplayMode = 'table' | 'json' | 'binary' | 'schema' | 'html' | 'ai';
@@ -644,7 +666,8 @@ export type NodeFilterType =
 	| typeof AI_NODE_CREATOR_VIEW
 	| typeof AI_OTHERS_NODE_CREATOR_VIEW
 	| typeof AI_UNCATEGORIZED_CATEGORY
-	| typeof AI_EVALUATION;
+	| typeof AI_EVALUATION
+	| typeof HUMAN_IN_THE_LOOP_CATEGORY;
 
 export type NodeCreatorOpenSource =
 	| ''
@@ -653,7 +676,7 @@ export type NodeCreatorOpenSource =
 	| 'plus_endpoint'
 	| 'add_input_endpoint'
 	| 'trigger_placeholder_button'
-	| 'tab'
+	| 'node_shortcut'
 	| 'replace_node_action'
 	| 'node_connection_action'
 	| 'node_connection_drop'
@@ -758,6 +781,7 @@ export interface ITabBarItem {
 export interface IResourceLocatorResultExpanded extends INodeListSearchItems {
 	linkAlt?: string;
 	isArchived?: boolean;
+	active?: boolean;
 }
 
 export interface CurlToJSONResponse {
@@ -792,9 +816,16 @@ export type SchemaType =
 	| 'object'
 	| 'function'
 	| 'null'
-	| 'undefined';
+	| 'undefined'
+	| 'binary';
 
-export type Schema = { type: SchemaType; key?: string; value: string | Schema[]; path: string };
+export type Schema = {
+	type: SchemaType;
+	key?: string;
+	value: string | Schema[];
+	path: string;
+	binaryData?: BinaryMetadata;
+};
 
 export type NodeAuthenticationOption = {
 	name: string;
@@ -837,11 +868,15 @@ export type CloudUpdateLinkSourceType =
 	| 'evaluations'
 	| 'ai-builder-sidebar'
 	| 'ai-builder-canvas'
-	| 'custom-roles';
+	| 'custom-roles'
+	| 'custom-roles-selector'
+	| 'custom-roles-list'
+	| 'main-sidebar'
+	| 'chat-hub'
+	| 'empty-state-builder-prompt';
 
 export type UTMCampaign =
 	| 'upgrade-custom-data-filter'
-	| 'upgrade-canvas-nav'
 	| 'upgrade-concurrency'
 	| 'upgrade-workflow-sharing'
 	| 'upgrade-credentials-sharing'
@@ -864,12 +899,15 @@ export type UTMCampaign =
 	| 'upgrade-insights'
 	| 'upgrade-evaluations'
 	| 'upgrade-builder'
-	| 'upgrade-custom-roles';
+	| 'upgrade-custom-roles'
+	| 'upgrade-canvas-nav'
+	| 'upgrade-main-sidebar';
 
 export type AddedNode = {
 	type: string;
 	openDetail?: boolean;
 	isAutoAdd?: boolean;
+	positionOffset?: XYPosition;
 	actionName?: string;
 } & Partial<INodeUi>;
 
@@ -906,12 +944,14 @@ export type EnterpriseEditionFeatureKey =
 	| 'ExternalSecrets'
 	| 'AuditLogs'
 	| 'DebugInEditor'
-	| 'WorkflowHistory'
 	| 'WorkerView'
 	| 'AdvancedPermissions'
 	| 'ApiKeyScopes'
 	| 'EnforceMFA'
-	| 'Provisioning';
+	| 'NamedVersions'
+	| 'Provisioning'
+	| 'PersonalSpacePolicy'
+	| 'CustomRoles';
 
 export type EnterpriseEditionFeatureValue = keyof Omit<FrontendSettings['enterprise'], 'projects'>;
 

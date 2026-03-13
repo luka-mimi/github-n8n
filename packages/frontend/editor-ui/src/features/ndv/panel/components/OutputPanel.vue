@@ -10,13 +10,12 @@ import { useNodeTypesStore } from '@/app/stores/nodeTypes.store';
 import RunDataAi from '@/features/ndv/runData/components/ai/RunDataAi.vue';
 import { useNodeType } from '@/app/composables/useNodeType';
 import { usePinnedData } from '@/app/composables/usePinnedData';
+import { useInjectWorkflowId } from '@/app/composables/useInjectWorkflowId';
 import { useTelemetry } from '@/app/composables/useTelemetry';
 import { useI18n } from '@n8n/i18n';
 import { waitingNodeTooltip } from '@/features/execution/executions/executions.utils';
 import { useNodeDirtiness } from '@/app/composables/useNodeDirtiness';
 import { CanvasNodeDirtiness } from '@/features/workflows/canvas/canvas.types';
-import { NDV_UI_OVERHAUL_EXPERIMENT } from '@/app/constants';
-import { usePostHog } from '@/app/stores/posthog.store';
 import { type IRunDataDisplayMode } from '@/Interface';
 import { I18nT } from 'vue-i18n';
 import { useExecutionData } from '@/features/execution/executions/composables/useExecutionData';
@@ -74,11 +73,11 @@ const emit = defineEmits<{
 
 // Stores
 
+const workflowId = useInjectWorkflowId();
 const ndvStore = useNDVStore();
 const nodeTypesStore = useNodeTypesStore();
 const workflowsStore = useWorkflowsStore();
 const workflowState = injectWorkflowState();
-const posthogStore = usePostHog();
 const telemetry = useTelemetry();
 const i18n = useI18n();
 const { activeNode } = storeToRefs(ndvStore);
@@ -220,20 +219,14 @@ const allToolsWereUnusedNotice = computed(() => {
 	const toolsUsedInLatestRun = toolsAvailable.filter(
 		(tool) => !!workflowRunData.value?.[tool]?.[props.runIndex],
 	);
-	if (toolsAvailable.length > 0 && toolsUsedInLatestRun.length === 0) {
+	if (toolsAvailable.length > 0 && toolsUsedInLatestRun.length === 0 && !workflowRunning.value) {
 		return i18n.baseText('ndv.output.noToolUsedInfo');
 	} else {
 		return undefined;
 	}
 });
 
-const isNDVV2 = computed(() =>
-	posthogStore.isVariantEnabled(
-		NDV_UI_OVERHAUL_EXPERIMENT.name,
-		NDV_UI_OVERHAUL_EXPERIMENT.variant,
-	),
-);
-
+const isNDVV2 = computed(() => true);
 // Methods
 
 const insertTestData = () => {
@@ -246,7 +239,7 @@ const insertTestData = () => {
 	});
 
 	telemetry.track('User clicked ndv link', {
-		workflow_id: workflowsStore.workflowId,
+		workflow_id: workflowId.value,
 		push_ref: props.pushRef,
 		node_type: node.value?.type,
 		pane: 'output',
@@ -266,7 +259,7 @@ const openSettings = () => {
 	emit('openSettings');
 	telemetry.track('User clicked ndv link', {
 		node_type: node.value?.type,
-		workflow_id: workflowsStore.workflowId,
+		workflow_id: workflowId.value,
 		push_ref: props.pushRef,
 		pane: 'output',
 		type: 'settings',
@@ -309,7 +302,6 @@ function handleChangeCollapsingColumn(columnName: string | null) {
 		:run-index="runIndex"
 		:linked-runs="linkedRuns"
 		:can-link-runs="canLinkRuns"
-		:too-much-data-title="i18n.baseText('ndv.output.tooMuchData.title')"
 		:no-data-in-branch-message="i18n.baseText('ndv.output.noOutputDataInBranch')"
 		:is-executing="isNodeRunning"
 		:executing-message="i18n.baseText('ndv.output.executing')"

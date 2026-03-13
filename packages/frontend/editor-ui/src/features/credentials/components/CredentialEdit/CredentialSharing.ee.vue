@@ -19,6 +19,7 @@ import { splitName } from '@/features/collaboration/projects/projects.utils';
 import type { EventBus } from '@n8n/utils/event-bus';
 import type { ICredentialDataDecryptedObject } from 'n8n-workflow';
 import { computed, onMounted, ref, watch } from 'vue';
+import { getResourcePermissions } from '@n8n/permissions';
 
 import { N8nActionBox, N8nInfoTip } from '@n8n/design-system';
 type Props = {
@@ -27,12 +28,14 @@ type Props = {
 	credentialPermissions: PermissionsRecord['credential'];
 	credential?: ICredentialsResponse | ICredentialsDecryptedResponse | null;
 	modalBus: EventBus;
+	isSharedGlobally?: boolean;
 };
 
-const props = withDefaults(defineProps<Props>(), { credential: null });
+const props = withDefaults(defineProps<Props>(), { credential: null, isSharedGlobally: false });
 
 const emit = defineEmits<{
 	'update:modelValue': [value: ProjectSharingData[]];
+	'update:shareWithAllUsers': [value: boolean];
 }>();
 
 const i18n = useI18n();
@@ -79,6 +82,12 @@ const homeProject = computed<ProjectSharingData | undefined>(
 	() => props.credential?.homeProject ?? credentialDataHomeProject.value,
 );
 const isHomeTeamProject = computed(() => homeProject.value?.type === ProjectTypes.Team);
+const isPersonalSpaceRestricted = computed(
+	() =>
+		homeProject.value?.type === ProjectTypes.Personal &&
+		homeProject.value?.id === projectsStore.personalProject?.id &&
+		!props.credentialPermissions.share,
+);
 const credentialRoleTranslations = computed<Record<string, string>>(() => {
 	return {
 		'credential:user': i18n.baseText('credentialEdit.credentialSharing.role.user'),
@@ -105,6 +114,11 @@ const sharingSelectPlaceholder = computed(() =>
 		: i18n.baseText('projects.sharing.select.placeholder.user'),
 );
 
+const canShareGlobally = computed(() => {
+	const permissions = getResourcePermissions(usersStore.currentUser?.globalScopes);
+	return permissions.credential?.shareGlobally ?? false;
+});
+
 watch(
 	sharedWithProjects,
 	(changedSharedWithProjects) => {
@@ -114,7 +128,7 @@ watch(
 );
 
 onMounted(async () => {
-	await Promise.all([usersStore.fetchUsers(), projectsStore.getAllProjects()]);
+	await projectsStore.getAllProjects();
 });
 
 function goToUpgrade() {
@@ -141,7 +155,11 @@ function goToUpgrade() {
 			/>
 		</div>
 		<div v-else>
-			<N8nInfoTip v-if="credentialPermissions.share" :bold="false" class="mb-s">
+			<N8nInfoTip
+				v-if="credentialPermissions.share || isPersonalSpaceRestricted"
+				:bold="false"
+				class="mb-s"
+			>
 				{{ i18n.baseText('credentialEdit.credentialSharing.info.owner') }}
 			</N8nInfoTip>
 			<N8nInfoTip v-else-if="isHomeTeamProject" :bold="false" class="mb-s">
@@ -161,7 +179,15 @@ function goToUpgrade() {
 				:home-project="homeProject"
 				:readonly="!credentialPermissions.share"
 				:static="!credentialPermissions.share"
+				:disabled-tooltip="
+					isPersonalSpaceRestricted
+						? i18n.baseText('credentialEdit.credentialSharing.info.personalSpaceRestricted')
+						: undefined
+				"
 				:placeholder="sharingSelectPlaceholder"
+				:can-share-globally="canShareGlobally"
+				:is-shared-globally="isSharedGlobally"
+				@update:share-with-all-users="emit('update:shareWithAllUsers', $event)"
 			/>
 		</div>
 	</div>

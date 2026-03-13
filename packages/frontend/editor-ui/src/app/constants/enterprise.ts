@@ -16,9 +16,11 @@ export const EnterpriseEditionFeature: Record<
 	ExternalSecrets: 'externalSecrets',
 	AuditLogs: 'auditLogs',
 	DebugInEditor: 'debugInEditor',
-	WorkflowHistory: 'workflowHistory',
 	WorkerView: 'workerView',
 	AdvancedPermissions: 'advancedPermissions',
 	ApiKeyScopes: 'apiKeyScopes',
+	NamedVersions: 'namedVersions',
 	Provisioning: 'provisioning',
+	PersonalSpacePolicy: 'personalSpacePolicy',
+	CustomRoles: 'customRoles',
 };
